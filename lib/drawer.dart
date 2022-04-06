@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:omer_mailer/static_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({Key? key}) : super(key: key);
@@ -8,20 +10,194 @@ class MyDrawer extends StatefulWidget {
 }
 
 class _MyDrawerState extends State<MyDrawer> {
-  TextEditingController smtpHostController=TextEditingController();
-  TextEditingController smtpNameController=TextEditingController();
-  TextEditingController smtpPasswordController=TextEditingController();
-  TextEditingController smtpPortController=TextEditingController();
-  TextEditingController smtpUsernameController=TextEditingController();
+  final TextEditingController smtpHostController = TextEditingController();
+  final TextEditingController smtpNameController = TextEditingController();
+  final TextEditingController smtpPasswordController = TextEditingController();
+  final TextEditingController smtpPortController = TextEditingController();
+  final TextEditingController smtpUsernameController = TextEditingController();
+  final GlobalKey<FormState> _key = GlobalKey();
+  @override
+  void dispose() {
+    smtpHostController.dispose();
+    smtpNameController.dispose();
+    smtpPasswordController.dispose();
+    smtpPortController.dispose();
+    smtpUsernameController.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    SharedPreferences.getInstance().then((shared) {
+      smtpNameController.text = shared.getString(StaticInfo.smtpName) ?? '';
+      smtpUsernameController.text = shared.getString(
+            StaticInfo.smtpUsername,
+          ) ??
+          '';
+
+      smtpHostController.text = shared.getString(
+            StaticInfo.smtpHost,
+          ) ??
+          '';
+
+      smtpPasswordController.text = shared.getString(
+            StaticInfo.smtpPassword,
+          ) ??
+          '';
+
+      smtpPortController.text = shared.getString(
+            StaticInfo.smtpPort,
+          ) ??
+          '';
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("SMTP Restored"),
+        behavior: SnackBarBehavior.floating,
+        width: 140,
+        duration: Duration(milliseconds: 1000),
+      ));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-children: [
-  Text("fack"),
-
-],
-
+    return Material(
+      child: Drawer(
+        child: Scaffold(
+          body: Form(
+            key: _key,
+            child: ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: smtpNameController,
+                    validator: (name) {
+                      if (name == null || name.isEmpty) {
+                        return 'Please Enter your name';
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      labelText: "Name",
+                      hintText: "Ex: Omar gaylan",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: smtpUsernameController,
+                    validator: (email) {
+                      if (email == null || email.isEmpty) {
+                        return 'Please Enter your Email';
+                      } else {
+                        bool emailValid = RegExp(
+                                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                            .hasMatch(email);
+                        if (!emailValid) {
+                          return "Please Enter a valid Email";
+                        }
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      labelText: "Email",
+                      hintText: "Ex: omar@email.com",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: smtpHostController,
+                    validator: (host) {
+                      if (host == null || host.isEmpty) {
+                        return 'Please enter host name';
+                      } else {
+                        if (host.length < 5 || !host.contains('.')) {
+                          return 'please enter the valid hostname';
+                        }
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      labelText: "Host Name",
+                      hintText: "Ex: host.com",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: smtpPasswordController,
+                    validator: (pass) {
+                      if (pass == null || pass.isEmpty) {
+                        return "Please enter the password";
+                      } else {
+                        if (pass.length < 3) return "Password is too short";
+                      }
+                    },
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: "Password",
+                      hintText: "Enter Password",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: smtpPortController,
+                    validator: (port) {
+                      if (port == null || port.isEmpty) {
+                        return "Please enter the Port";
+                      } else {
+                        final int? portNumber = int.tryParse(port);
+                        if (portNumber == null) {
+                          return "Port is Nmuber Please Enter correct port number";
+                        }
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      labelText: "Port",
+                      hintText: "Ex 948",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: ElevatedButton(
+                    child: const Text("SAVE"),
+                    onPressed: () async {
+                      if (_key.currentState?.validate() ?? false) {
+                        final SharedPreferences shared =
+                            await SharedPreferences.getInstance();
+                        shared.setString(
+                            StaticInfo.smtpName, smtpNameController.text);
+                        shared.setString(StaticInfo.smtpUsername,
+                            smtpUsernameController.text);
+                        shared.setString(
+                            StaticInfo.smtpHost, smtpHostController.text);
+                        shared.setString(StaticInfo.smtpPassword,
+                            smtpPasswordController.text);
+                        shared.setString(
+                            StaticInfo.smtpPort, smtpPortController.text);
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text("SMTP saved"),
+                          behavior: SnackBarBehavior.floating,
+                          width: 140,
+                        ));
+                      }
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
