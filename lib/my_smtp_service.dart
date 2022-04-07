@@ -16,7 +16,7 @@ class MySmtpService {
       final String? signature,
       required TextEditingController logController,
       required final List<String?> filepath}) async {
-    saveEmailFeilds(
+    await saveEmailFeilds(
         from: from,
         name: name,
         to: to,
@@ -51,11 +51,8 @@ class MySmtpService {
         port: int.parse(smtpPort),
         ssl: true,
         username: smtpUsername);
-
     var connection =
         PersistentConnection(server, timeout: const Duration(seconds: 15));
-
-    // Send multiple mails on one connection:
     try {
       for (int i = 0; i < filepath.length; i++) {
         logController.text =
@@ -64,10 +61,9 @@ class MySmtpService {
           ..from = Address(from, name)
           ..recipients.addAll(toAd([to]))
           ..text = body
-          ..html = StaticInfo.omerSignature
-          ..attachments.addAll(toAt([filepath[i]]));
-
-        message.subject = subject;
+          ..html = signature
+          ..attachments.addAll(toAt([filepath[i]]))
+          ..subject = subject + i.toString();
         final sendReport = await connection.send(message);
         logController.text =
             logController.text + '\nMessage sent: ' + sendReport.toString();
@@ -75,13 +71,11 @@ class MySmtpService {
     } on MailerException catch (e) {
       logController.text = logController.text + '\nMessage not sent.';
 
-      print('Message not sent.');
       for (var p in e.problems) {
         logController.text =
             logController.text + '\nProblem: ${p.code}: ${p.msg}';
       }
     } catch (e) {
-      print(e);
       logController.text = logController.text + '\nOther exception: $e';
     } finally {
       logController.text = logController.text + '\n Task Completed';
@@ -99,13 +93,16 @@ class MySmtpService {
     final String? signature,
   }) async {
     SharedPreferences shared = await SharedPreferences.getInstance();
-    shared.setString(from, StaticInfo.mailFrom);
-    shared.setString(name, StaticInfo.mailName);
-    shared.setString(to, StaticInfo.mailTo);
-    shared.setString(subject, StaticInfo.mailSubject);
-    shared.setString(body, StaticInfo.mailBody);
+    shared.setString(
+      StaticInfo.mailFrom,
+      from,
+    );
+    shared.setString(StaticInfo.mailName, name);
+    shared.setString(StaticInfo.mailTo, to);
+    shared.setString(StaticInfo.mailSubject, subject);
+    shared.setString(StaticInfo.mailBody, body);
     if (signature != null) {
-      shared.setString(signature, StaticInfo.mailSignature);
+      shared.setString(StaticInfo.mailSignature, signature);
     } else {
       shared.remove(StaticInfo.mailSignature);
     }

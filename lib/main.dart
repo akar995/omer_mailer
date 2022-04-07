@@ -2,13 +2,12 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:googleapis_auth/auth_io.dart';
-import "package:http/http.dart" as http;
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server.dart';
-import 'package:omer_mailer/drawer.dart';
+import 'package:omer_mailer/design/drawer.dart';
+import 'package:omer_mailer/design/is_login.dart';
+import 'package:omer_mailer/my_gmail_mail_server.dart';
 import 'package:omer_mailer/my_smtp_service.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:omer_mailer/static_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -57,9 +56,23 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((value) {
+      _textControllerFrom.text = value.getString(StaticInfo.mailFrom) ?? "";
+      _textControllerFromName.text = value.getString(StaticInfo.mailName) ?? "";
+      _textControllerTo.text = value.getString(StaticInfo.mailTo) ?? "";
+      _textControllerSubject.text =
+          value.getString(StaticInfo.mailSubject) ?? "";
+      _textControllerBody.text = value.getString(StaticInfo.mailBody) ?? "";
+      _textControllerSignature.text =
+          value.getString(StaticInfo.mailSignature) ?? "";
+    });
+  }
+
   final List<File> files = [];
   final List<String?> filepath = [];
-  AccessCredentials? _credentials;
 
   @override
   Widget build(BuildContext context) {
@@ -143,8 +156,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           controller: _textControllerBody,
                           maxLines: 10,
                           decoration: const InputDecoration(
-                            hintText: "Enter email body",
-                            labelText: "Body",
+                            hintText: "Enter email body with Plan Text",
+                            labelText: "Body Plain Text",
                             filled: true,
                           ),
                         ),
@@ -153,10 +166,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 120,
                         child: TextField(
                           controller: _textControllerSignature,
-                          maxLines: 10,
+                          maxLines: 10000,
                           decoration: const InputDecoration(
-                            hintText: "Enter email body",
-                            labelText: "Body",
+                            hintText:
+                                "Enter Email body with HTML note: only one type of body can be used at the sametime, and HTML will overwrite plain text",
+                            labelText: "Body HTML",
                             filled: true,
                           ),
                         ),
@@ -164,41 +178,66 @@ class _MyHomePageState extends State<MyHomePage> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Row(
-                        children: [
-                          ElevatedButton(
-                              onPressed: () {
-                                _loginWindowsDesktop();
-                              },
-                              child: const Text("GET CREDENTIALS")),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          ElevatedButton(
-                              onPressed: () {
-                                // sendWithGmailMail();
-                                MySmtpService.sendSmtpEmails(
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          children: [
+                            ElevatedButton(
+                                onPressed: () {
+                                  MyGamilMailServer.loginWindowsDesktop(
+                                      logController: _textController);
+                                },
+                                child: const Text("GET CREDENTIALS")),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            ElevatedButton(
+                                onPressed: () {
+                                  if (_textControllerSignature.text
+                                      .contains("get omar signature")) {
+                                    _textControllerSignature.text =
+                                        StaticInfo.omerSignature;
+                                  }
+                                  MySmtpService.sendSmtpEmails(
+                                      from: _textControllerFrom.text,
+                                      name: _textControllerFromName.text,
+                                      to: _textControllerTo.text,
+                                      subject: _textControllerSubject.text,
+                                      body: _textControllerBody.text,
+                                      logController: _textController,
+                                      signature: _textControllerSignature.text,
+                                      filepath: filepath);
+                                },
+                                child: const Text("Send Email with SMTP host")),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            ElevatedButton(
+                                onPressed: () {
+                                  if (_textControllerSignature.text
+                                      .contains("get omar signature")) {
+                                    _textControllerSignature.text =
+                                        StaticInfo.omerSignature;
+                                  }
+                                  MyGamilMailServer.sendWithGmailMail(
                                     from: _textControllerFrom.text,
                                     name: _textControllerFromName.text,
                                     to: _textControllerTo.text,
                                     subject: _textControllerSubject.text,
                                     body: _textControllerBody.text,
                                     logController: _textController,
-                                    filepath: filepath);
-                              },
-                              child: const Text("Send Email"))
-                        ],
+                                    signature: _textControllerSignature.text,
+                                    filepath: filepath,
+                                  );
+                                },
+                                child: const Text("Send Email with Gmail"))
+                          ],
+                        ),
                       ),
                       const SizedBox(
                         height: 10,
                       ),
-                      Row(
-                        children: [
-                          _credentials == null
-                              ? const Text("you are not login")
-                              : const Text("you are login")
-                        ],
-                      ),
+                      const IsLogin()
                     ],
                   ),
                 ),
@@ -293,89 +332,5 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
-  }
-
-  _loginWindowsDesktop() async {
-    var id = ClientId('SecretInfo.identifier', 'SecretInfo.secret');
-    List<String> scopes = [
-      // 'https://www.googleapis.com/auth/userinfo.email'
-      'https://mail.google.com/'
-    ];
-
-    var client = http.Client();
-
-    await obtainAccessCredentialsViaUserConsent(
-            id, scopes, client, (url) => _lauchAuthInBrowser(url))
-        .then((AccessCredentials credentials) {
-      _credentials = credentials;
-      _textController.text =
-          _textController.text + "\nUser credentials gained successfully";
-      client.close();
-    }).onError((error, stackTrace) {
-      print(error);
-      _textController.text =
-          _textController.text + "\nUser credentials gained failed $error";
-    });
-  }
-
-  sendWithGmailMail() async {
-    SmtpServer smtpServer = gmailSaslXoauth2(
-        _textControllerFrom.text, _credentials!.accessToken.data);
-    var connection =
-        PersistentConnection(smtpServer, timeout: const Duration(seconds: 15));
-
-    // Send multiple mails on one connection:
-    try {
-      final String from = _textControllerFrom.text;
-      final String name = _textControllerFromName.text;
-      final String to = _textControllerTo.text;
-      final String subject = _textControllerSubject.text;
-      final String body = _textControllerBody.text;
-
-      for (int i = 0; i < filepath.length; i++) {
-        _textController.text =
-            _textController.text + '\nNow sending Email ${i + 1}';
-
-        final message = Message()
-          ..from = Address(from, name)
-          ..recipients.addAll(MySmtpService.toAd([to]))
-          ..text = body
-          ..attachments.addAll(MySmtpService.toAt([filepath[i]]));
-
-        message.subject = subject;
-        final sendReport = await connection.send(message);
-        _textController.text =
-            _textController.text + '\nMessage sent: ' + sendReport.toString();
-      }
-    } on MailerException catch (e) {
-      _textController.text = _textController.text + '\nMessage not sent.';
-
-      print('Message not sent.');
-      for (var p in e.problems) {
-        _textController.text =
-            _textController.text + '\nProblem: ${p.code}: ${p.msg}';
-      }
-    } catch (e) {
-      _textController.text = _textController.text + '\nOther exception: $e';
-    } finally {
-      _textController.text = _textController.text + '\n Task Completed';
-
-      await connection.close();
-    }
-  }
-
-  void _lauchAuthInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      _textController.text = _textController.text + '\nCould not lauch $url';
-    }
-  }
-
-  String? encodeQueryParameters(Map<String, String> params) {
-    return params.entries
-        .map((e) =>
-            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
-        .join('&');
   }
 }
