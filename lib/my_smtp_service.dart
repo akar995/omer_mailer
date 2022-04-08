@@ -44,15 +44,20 @@ class MySmtpService {
           StaticInfo.smtpPort,
         ) ??
         '';
-
+    final enableSSL = shared.getBool(StaticInfo.smtpEnableSSL) ?? true;
+    final allowInsceure = shared.getBool(StaticInfo.smtpAllowInsecure) ?? false;
+    final ignoreBadCertificate =
+        shared.getBool(StaticInfo.smtpIgnoreBadCertificate) ?? false;
     SmtpServer server = SmtpServer(smtpHost,
         name: smtpName,
         password: smtpPassword,
         port: int.parse(smtpPort),
-        ssl: true,
+        ssl: enableSSL,
+        ignoreBadCertificate: ignoreBadCertificate,
+        allowInsecure: allowInsceure,
         username: smtpUsername);
     var connection =
-        PersistentConnection(server, timeout: const Duration(seconds: 15));
+        PersistentConnection(server, timeout: const Duration(seconds: 20));
     try {
       for (int i = 0; i < filepath.length; i++) {
         logController.text =

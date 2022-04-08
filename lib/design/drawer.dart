@@ -16,6 +16,9 @@ class _MyDrawerState extends State<MyDrawer> {
   final TextEditingController smtpPortController = TextEditingController();
   final TextEditingController smtpUsernameController = TextEditingController();
   final GlobalKey<FormState> _key = GlobalKey();
+  bool enableSSL = false;
+  bool allowInsceure = false;
+  bool ignoreBadCertificate = false;
   @override
   void dispose() {
     smtpHostController.dispose();
@@ -52,6 +55,11 @@ class _MyDrawerState extends State<MyDrawer> {
             StaticInfo.smtpPort,
           ) ??
           '';
+      enableSSL = shared.getBool(StaticInfo.smtpEnableSSL) ?? true;
+      allowInsceure = shared.getBool(StaticInfo.smtpAllowInsecure) ?? false;
+      ignoreBadCertificate =
+          shared.getBool(StaticInfo.smtpAllowInsecure) ?? false;
+      setState(() {});
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("SMTP Restored"),
@@ -165,6 +173,66 @@ class _MyDrawerState extends State<MyDrawer> {
                     ),
                   ),
                 ),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Checkbox(
+                          value: enableSSL,
+                          onChanged: (value) {
+                            setState(() {
+                              enableSSL = value!;
+                            });
+                          }),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Text("Enable SSL"),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Checkbox(
+                          value: allowInsceure,
+                          onChanged: (value) {
+                            setState(() {
+                              allowInsceure = value!;
+                            });
+                          }),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Text("Allow insecure"),
+                    ],
+                  ),
+                ),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Checkbox(
+                          value: ignoreBadCertificate,
+                          onChanged: (value) {
+                            setState(() {
+                              ignoreBadCertificate = value!;
+                            });
+                          }),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Text("Ignore Bad Certificate"),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                    ],
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(10),
                   child: ElevatedButton(
@@ -183,6 +251,12 @@ class _MyDrawerState extends State<MyDrawer> {
                             smtpPasswordController.text);
                         shared.setString(
                             StaticInfo.smtpPort, smtpPortController.text);
+
+                        shared.setBool(
+                            StaticInfo.smtpAllowInsecure, allowInsceure);
+
+                        shared.setBool(StaticInfo.smtpEnableSSL, enableSSL);
+
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context)
                             .showSnackBar(const SnackBar(
