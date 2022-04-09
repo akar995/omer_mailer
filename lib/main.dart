@@ -263,6 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         Expanded(
                           child: ListView(
+                            reverse: true,
                             children: [
                               TextField(
                                 readOnly: true,

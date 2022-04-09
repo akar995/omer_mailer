@@ -68,13 +68,14 @@ class MySmtpService {
           ..text = body
           ..html = signature
           ..attachments.addAll(toAt([filepath[i]]))
-          ..subject = subject + i.toString();
+          ..subject = subject;
         final sendReport = await connection.send(message);
         logController.text =
             logController.text + '\nMessage sent: ' + sendReport.toString();
       }
     } on MailerException catch (e) {
-      logController.text = logController.text + '\nMessage not sent.';
+      logController.text =
+          logController.text + e.message + '\nMessage not sent.';
 
       for (var p in e.problems) {
         logController.text =

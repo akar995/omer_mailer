@@ -87,6 +87,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       if (name == null || name.isEmpty) {
                         return 'Please Enter your name';
                       }
+                      return null;
                     },
                     decoration: const InputDecoration(
                       labelText: "Name",
@@ -109,6 +110,7 @@ class _MyDrawerState extends State<MyDrawer> {
                           return "Please Enter a valid Email";
                         }
                       }
+                      return null;
                     },
                     decoration: const InputDecoration(
                       labelText: "Email",
@@ -128,6 +130,7 @@ class _MyDrawerState extends State<MyDrawer> {
                           return 'please enter the valid hostname';
                         }
                       }
+                      return null;
                     },
                     decoration: const InputDecoration(
                       labelText: "Host Name",
@@ -145,6 +148,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       } else {
                         if (pass.length < 3) return "Password is too short";
                       }
+                      return null;
                     },
                     obscureText: true,
                     decoration: const InputDecoration(
@@ -166,6 +170,7 @@ class _MyDrawerState extends State<MyDrawer> {
                           return "Port is Nmuber Please Enter correct port number";
                         }
                       }
+                      return null;
                     },
                     decoration: const InputDecoration(
                       labelText: "Port",

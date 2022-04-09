@@ -39,7 +39,6 @@ class MyGamilMailServer {
       credentials.refreshToken;
       // return credentials;
     }).onError((error, stackTrace) {
-      print(error);
       logController.text =
           logController.text + "\nUser credentials gained failed $error";
     });
@@ -88,8 +87,6 @@ class MyGamilMailServer {
       }
     } on MailerException catch (e) {
       logController.text = logController.text + '\nMessage not sent.';
-
-      print('Message not sent.');
       for (var p in e.problems) {
         logController.text =
             logController.text + '\nProblem: ${p.code}: ${p.msg}';
