@@ -14,6 +14,7 @@ class StaticInfo {
   static const String mailBody = 'mail_host';
   static const String mailFrom = 'mail_from';
   static const String mailTo = 'mail_to';
+  static const String mailCc = 'mail_cc';
   static const String mailName = 'mail_name';
   static const String mailSignature = "mail_signature";
 

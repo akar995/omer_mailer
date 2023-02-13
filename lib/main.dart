@@ -39,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _textControllerFrom = TextEditingController();
   final TextEditingController _textControllerFromName = TextEditingController();
   final TextEditingController _textControllerTo = TextEditingController();
+  final TextEditingController _textControllerCC = TextEditingController();
   final TextEditingController _textControllerSubject = TextEditingController();
   final TextEditingController _textControllerBody = TextEditingController();
   final TextEditingController _textControllerSignature =
@@ -50,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _textControllerFrom.dispose();
     _textControllerFromName.dispose();
     _textControllerTo.dispose();
+    _textControllerCC.dispose();
     _textControllerSubject.dispose();
     _textControllerBody.dispose();
     _textControllerSignature.dispose();
@@ -63,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _textControllerFrom.text = value.getString(StaticInfo.mailFrom) ?? "";
       _textControllerFromName.text = value.getString(StaticInfo.mailName) ?? "";
       _textControllerTo.text = value.getString(StaticInfo.mailTo) ?? "";
+      _textControllerCC.text = value.getString(StaticInfo.mailCc) ?? "";
       _textControllerSubject.text =
           value.getString(StaticInfo.mailSubject) ?? "";
       _textControllerBody.text = value.getString(StaticInfo.mailBody) ?? "";
@@ -140,6 +143,17 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 10,
                       ),
                       TextField(
+                        controller: _textControllerCC,
+                        decoration: const InputDecoration(
+                          hintText: "Enter CC email address",
+                          labelText: "CC",
+                          filled: true,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextField(
                         controller: _textControllerSubject,
                         decoration: const InputDecoration(
                           hintText: "Enter email Subject",
@@ -202,6 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       from: _textControllerFrom.text,
                                       name: _textControllerFromName.text,
                                       to: _textControllerTo.text,
+                                      cc: _textControllerCC.text,
                                       subject: _textControllerSubject.text,
                                       body: _textControllerBody.text,
                                       logController: _textController,
@@ -226,6 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     subject: _textControllerSubject.text,
                                     body: _textControllerBody.text,
                                     logController: _textController,
+                                    cc: _textControllerCC.text,
                                     signature: _textControllerSignature.text,
                                     filepath: filepath,
                                   );

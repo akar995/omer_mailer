@@ -46,8 +46,8 @@ class MyGamilMailServer {
 
   static void lauchAuthInBrowser(String url,
       {required final TextEditingController logController}) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
     } else {
       logController.text = logController.text + '\nCould not lauch $url';
     }
@@ -60,6 +60,7 @@ class MyGamilMailServer {
       required final String subject,
       required final String body,
       final String? signature,
+      final String? cc,
       required TextEditingController logController,
       required final List<String?> filepath}) async {
     SharedPreferences shared = await SharedPreferences.getInstance();
@@ -79,6 +80,9 @@ class MyGamilMailServer {
           ..recipients.addAll(MySmtpService.toAd([to]))
           ..text = body
           ..attachments.addAll(MySmtpService.toAt([filepath[i]]));
+        if (cc != null && cc.isNotEmpty) {
+          message.ccRecipients.addAll(MySmtpService.toAd([cc]));
+        }
 
         message.subject = subject;
         final sendReport = await connection.send(message);

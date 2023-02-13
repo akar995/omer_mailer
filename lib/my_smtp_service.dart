@@ -13,6 +13,7 @@ class MySmtpService {
       required final String to,
       required final String subject,
       required final String body,
+      final String cc = '',
       final String? signature,
       required TextEditingController logController,
       required final List<String?> filepath}) async {
@@ -22,6 +23,7 @@ class MySmtpService {
         to: to,
         subject: subject,
         body: body,
+        cc: cc,
         signature: signature);
     SharedPreferences shared = await SharedPreferences.getInstance();
     final smtpName = shared.getString(StaticInfo.smtpName) ?? '';
@@ -58,17 +60,21 @@ class MySmtpService {
         username: smtpUsername);
     var connection =
         PersistentConnection(server, timeout: const Duration(seconds: 20));
+    print(toAd(cc.split(',')));
     try {
       for (int i = 0; i < filepath.length; i++) {
         logController.text =
             logController.text + '\nNow sending Email ${i + 1}';
         final message = Message()
           ..from = Address(from, name)
-          ..recipients.addAll(toAd([to]))
+          ..recipients.addAll(toAd(to.split(',')))
           ..text = body
           ..html = signature
           ..attachments.addAll(toAt([filepath[i]]))
           ..subject = subject;
+        if (cc.isNotEmpty) {
+          message.ccRecipients.addAll(toAd(cc.split(',')));
+        }
         final sendReport = await connection.send(message);
         logController.text =
             logController.text + '\nMessage sent: ' + sendReport.toString();
@@ -97,12 +103,16 @@ class MySmtpService {
     required final String subject,
     required final String body,
     final String? signature,
+    final String? cc,
   }) async {
     SharedPreferences shared = await SharedPreferences.getInstance();
     shared.setString(
       StaticInfo.mailFrom,
       from,
     );
+    if (cc != null && cc.isNotEmpty) {
+      shared.setString(StaticInfo.mailCc, cc);
+    }
     shared.setString(StaticInfo.mailName, name);
     shared.setString(StaticInfo.mailTo, to);
     shared.setString(StaticInfo.mailSubject, subject);
