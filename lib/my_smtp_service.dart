@@ -17,7 +17,7 @@ class MySmtpService {
       final String? signature,
       required TextEditingController logController,
       required final List<String?> filepath}) async {
-    await saveEmailFeilds(
+    await saveEmailFelids(
         from: from,
         name: name,
         to: to,
@@ -47,7 +47,9 @@ class MySmtpService {
         ) ??
         '';
     final enableSSL = shared.getBool(StaticInfo.smtpEnableSSL) ?? true;
-    final allowInsceure = shared.getBool(StaticInfo.smtpAllowInsecure) ?? false;
+    final allowInsecure = shared.getBool(StaticInfo.smtpAllowInsecure) ?? false;
+    final String delayTimer =
+        shared.getString(StaticInfo.delayTimerInMillisecond) ?? '';
     final ignoreBadCertificate =
         shared.getBool(StaticInfo.smtpIgnoreBadCertificate) ?? false;
     SmtpServer server = SmtpServer(smtpHost,
@@ -56,15 +58,14 @@ class MySmtpService {
         port: int.parse(smtpPort),
         ssl: enableSSL,
         ignoreBadCertificate: ignoreBadCertificate,
-        allowInsecure: allowInsceure,
+        allowInsecure: allowInsecure,
         username: smtpUsername);
     var connection =
         PersistentConnection(server, timeout: const Duration(seconds: 20));
-    print(toAd(cc.split(',')));
     try {
       for (int i = 0; i < filepath.length; i++) {
         logController.text =
-            logController.text + '\nNow sending Email ${i + 1}';
+            '${logController.text}\nNow sending Email ${i + 1}';
         final message = Message()
           ..from = Address(from, name)
           ..recipients.addAll(toAd(to.split(',')))
@@ -76,27 +77,30 @@ class MySmtpService {
           message.ccRecipients.addAll(toAd(cc.split(',')));
         }
         final sendReport = await connection.send(message);
-        logController.text =
-            logController.text + '\nMessage sent: ' + sendReport.toString();
+        final int delayTimerInInt = int.tryParse(delayTimer) ?? 0;
+        if (delayTimerInInt > 0) {
+          await Future.delayed(Duration(milliseconds: delayTimerInInt));
+        }
+        logController.text = '${logController.text}\nMessage sent: $sendReport';
       }
     } on MailerException catch (e) {
       logController.text =
-          logController.text + e.message + '\nMessage not sent.';
+          '${logController.text}${e.message}\nMessage not sent.';
 
       for (var p in e.problems) {
         logController.text =
-            logController.text + '\nProblem: ${p.code}: ${p.msg}';
+            '${logController.text}\nProblem: ${p.code}: ${p.msg}';
       }
     } catch (e) {
-      logController.text = logController.text + '\nOther exception: $e';
+      logController.text = '${logController.text}\nOther exception: $e';
     } finally {
-      logController.text = logController.text + '\n Task Completed';
+      logController.text = '${logController.text}\n Task Completed';
 
       await connection.close();
     }
   }
 
-  static saveEmailFeilds({
+  static saveEmailFelids({
     required final String from,
     required final String name,
     required final String to,

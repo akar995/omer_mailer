@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:omer_mailer/static_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,9 +16,10 @@ class _MyDrawerState extends State<MyDrawer> {
   final TextEditingController smtpPasswordController = TextEditingController();
   final TextEditingController smtpPortController = TextEditingController();
   final TextEditingController smtpUsernameController = TextEditingController();
+  final TextEditingController delayTimerInMillisecond = TextEditingController();
   final GlobalKey<FormState> _key = GlobalKey();
   bool enableSSL = false;
-  bool allowInsceure = false;
+  bool allowInsecure = false;
   bool ignoreBadCertificate = false;
   @override
   void dispose() {
@@ -26,6 +28,7 @@ class _MyDrawerState extends State<MyDrawer> {
     smtpPasswordController.dispose();
     smtpPortController.dispose();
     smtpUsernameController.dispose();
+    delayTimerInMillisecond.dispose();
 
     super.dispose();
   }
@@ -56,9 +59,11 @@ class _MyDrawerState extends State<MyDrawer> {
           ) ??
           '';
       enableSSL = shared.getBool(StaticInfo.smtpEnableSSL) ?? true;
-      allowInsceure = shared.getBool(StaticInfo.smtpAllowInsecure) ?? false;
+      allowInsecure = shared.getBool(StaticInfo.smtpAllowInsecure) ?? false;
       ignoreBadCertificate =
           shared.getBool(StaticInfo.smtpAllowInsecure) ?? false;
+      delayTimerInMillisecond.text =
+          shared.getString(StaticInfo.delayTimerInMillisecond) ?? '';
       setState(() {});
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -91,7 +96,7 @@ class _MyDrawerState extends State<MyDrawer> {
                     },
                     decoration: const InputDecoration(
                       labelText: "Name",
-                      hintText: "Ex: Omar gaylan",
+                      hintText: "Ex: Akar Imdad",
                     ),
                   ),
                 ),
@@ -167,7 +172,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       } else {
                         final int? portNumber = int.tryParse(port);
                         if (portNumber == null) {
-                          return "Port is Nmuber Please Enter correct port number";
+                          return "Port is number Please Enter correct port number";
                         }
                       }
                       return null;
@@ -175,6 +180,31 @@ class _MyDrawerState extends State<MyDrawer> {
                     decoration: const InputDecoration(
                       labelText: "Port",
                       hintText: "Ex 948",
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: delayTimerInMillisecond,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (port) {
+                      if (port == null || port.isEmpty) {
+                        return "Please enter 0 for no delay";
+                      } else {
+                        final int? portNumber = int.tryParse(port);
+                        if (portNumber == null) {
+                          return "timer is number Please Enter correct number";
+                        }
+                        if (portNumber < 0) {
+                          return "timer can't be negative";
+                        }
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: "Delay Timer in Millisecond",
+                      hintText: "Ex 500 or 1000",
                     ),
                   ),
                 ),
@@ -200,10 +230,10 @@ class _MyDrawerState extends State<MyDrawer> {
                         width: 10,
                       ),
                       Checkbox(
-                          value: allowInsceure,
+                          value: allowInsecure,
                           onChanged: (value) {
                             setState(() {
-                              allowInsceure = value!;
+                              allowInsecure = value!;
                             });
                           }),
                       const SizedBox(
@@ -244,31 +274,33 @@ class _MyDrawerState extends State<MyDrawer> {
                     child: const Text("SAVE"),
                     onPressed: () async {
                       if (_key.currentState?.validate() ?? false) {
-                        final SharedPreferences shared =
-                            await SharedPreferences.getInstance();
-                        shared.setString(
-                            StaticInfo.smtpName, smtpNameController.text);
-                        shared.setString(StaticInfo.smtpUsername,
-                            smtpUsernameController.text);
-                        shared.setString(
-                            StaticInfo.smtpHost, smtpHostController.text);
-                        shared.setString(StaticInfo.smtpPassword,
-                            smtpPasswordController.text);
-                        shared.setString(
-                            StaticInfo.smtpPort, smtpPortController.text);
+                        await SharedPreferences.getInstance().then((shared) {
+                          shared.setString(
+                              StaticInfo.smtpName, smtpNameController.text);
+                          shared.setString(StaticInfo.smtpUsername,
+                              smtpUsernameController.text);
+                          shared.setString(
+                              StaticInfo.smtpHost, smtpHostController.text);
+                          shared.setString(StaticInfo.smtpPassword,
+                              smtpPasswordController.text);
+                          shared.setString(
+                              StaticInfo.smtpPort, smtpPortController.text);
+                          shared.setString(StaticInfo.delayTimerInMillisecond,
+                              delayTimerInMillisecond.text);
 
-                        shared.setBool(
-                            StaticInfo.smtpAllowInsecure, allowInsceure);
+                          shared.setBool(
+                              StaticInfo.smtpAllowInsecure, allowInsecure);
 
-                        shared.setBool(StaticInfo.smtpEnableSSL, enableSSL);
+                          shared.setBool(StaticInfo.smtpEnableSSL, enableSSL);
 
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content: Text("SMTP saved"),
-                          behavior: SnackBarBehavior.floating,
-                          width: 140,
-                        ));
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text("SMTP saved"),
+                            behavior: SnackBarBehavior.floating,
+                            width: 140,
+                          ));
+                        });
                       }
                     },
                   ),

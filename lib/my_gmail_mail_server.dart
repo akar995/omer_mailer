@@ -8,7 +8,7 @@ import 'package:omer_mailer/static_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class MyGamilMailServer {
+class MyGmailMailServer {
   static loginWindowsDesktop({
     required TextEditingController logController,
   }) async {
@@ -21,10 +21,10 @@ class MyGamilMailServer {
     var client = http.Client();
 
     await obtainAccessCredentialsViaUserConsent(id, scopes, client,
-            (url) => lauchAuthInBrowser(url, logController: logController))
+            (url) => launchAuthInBrowser(url, logController: logController))
         .then((AccessCredentials credentials) async {
       logController.text =
-          logController.text + "\nUser credentials gained successfully";
+          "${logController.text}\nUser credentials gained successfully";
       client.close();
       SharedPreferences shared = await SharedPreferences.getInstance();
       shared.setString(
@@ -40,16 +40,16 @@ class MyGamilMailServer {
       // return credentials;
     }).onError((error, stackTrace) {
       logController.text =
-          logController.text + "\nUser credentials gained failed $error";
+          "${logController.text}\nUser credentials gained failed $error";
     });
   }
 
-  static void lauchAuthInBrowser(String url,
+  static void launchAuthInBrowser(String url,
       {required final TextEditingController logController}) async {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
     } else {
-      logController.text = logController.text + '\nCould not lauch $url';
+      logController.text = '${logController.text}\nCould not launch $url';
     }
   }
 
@@ -73,7 +73,7 @@ class MyGamilMailServer {
     try {
       for (int i = 0; i < filepath.length; i++) {
         logController.text =
-            logController.text + '\nNow sending Email ${i + 1}';
+            '${logController.text}\nNow sending Email ${i + 1}';
 
         final message = Message()
           ..from = Address(from, name)
@@ -86,19 +86,18 @@ class MyGamilMailServer {
 
         message.subject = subject;
         final sendReport = await connection.send(message);
-        logController.text =
-            logController.text + '\nMessage sent: ' + sendReport.toString();
+        logController.text = '${logController.text}\nMessage sent: $sendReport';
       }
     } on MailerException catch (e) {
-      logController.text = logController.text + '\nMessage not sent.';
+      logController.text = '${logController.text}\nMessage not sent.';
       for (var p in e.problems) {
         logController.text =
-            logController.text + '\nProblem: ${p.code}: ${p.msg}';
+            '${logController.text}\nProblem: ${p.code}: ${p.msg}';
       }
     } catch (e) {
-      logController.text = logController.text + '\nOther exception: $e';
+      logController.text = '${logController.text}\nOther exception: $e';
     } finally {
-      logController.text = logController.text + '\n Task Completed';
+      logController.text = '${logController.text}\n Task Completed';
 
       await connection.close();
     }

@@ -183,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           maxLines: 10000,
                           decoration: const InputDecoration(
                             hintText:
-                                "Enter Email body with HTML note: only one type of body can be used at the sametime, and HTML will overwrite plain text",
+                                "Enter Email body with HTML note: only one type of body can be used at the some time, and HTML will overwrite plain text",
                             labelText: "Body HTML",
                             filled: true,
                           ),
@@ -198,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             ElevatedButton(
                                 onPressed: () {
-                                  MyGamilMailServer.loginWindowsDesktop(
+                                  MyGmailMailServer.loginWindowsDesktop(
                                       logController: _textController);
                                 },
                                 child: const Text("GET CREDENTIALS")),
@@ -234,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     _textControllerSignature.text =
                                         StaticInfo.omerSignature;
                                   }
-                                  MyGamilMailServer.sendWithGmailMail(
+                                  MyGmailMailServer.sendWithGmailMail(
                                     from: _textControllerFrom.text,
                                     name: _textControllerFromName.text,
                                     to: _textControllerTo.text,
@@ -308,7 +308,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Center(
-                    child: Text("${index + 1}" + name),
+                    child: Text("${index + 1}$name"),
                   ),
                 );
               },
@@ -331,8 +331,8 @@ class _MyHomePageState extends State<MyHomePage> {
               double size = element.lengthSync() / (1024 * 1024);
 
               if (size > 25) {
-                _textController.text = _textController.text +
-                    "\nFile can not be loaded file size is $size \nfile size is more then 25MB\n${element.path}\n";
+                _textController.text =
+                    "${_textController.text}\nFile can not be loaded file size is $size \nfile size is more then 25MB\n${element.path}\n";
                 return true;
               }
               return false;

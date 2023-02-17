@@ -8,9 +8,10 @@ class StaticInfo {
   static const String smtpAllowInsecure = 'smtp_allow_insecure';
   static const String smtpEnableSSL = 'smtp_enable_ssl';
   static const String smtpIgnoreBadCertificate = 'smtp_ignore_bad_certificate';
+  static const String delayTimerInMillisecond = 'delay_timer_in_millisecond';
 
   /// mail keys
-  static const String mailSubject = 'maik_subject';
+  static const String mailSubject = 'mail_subject';
   static const String mailBody = 'mail_host';
   static const String mailFrom = 'mail_from';
   static const String mailTo = 'mail_to';
@@ -18,10 +19,10 @@ class StaticInfo {
   static const String mailName = 'mail_name';
   static const String mailSignature = "mail_signature";
 
-  ///Gamil Key
+  ///Gmail Key
 
-  static const String gmailAccessTokenData = 'gemailAccessTokenData';
-  static const String gmailAccessTokenExpire = 'gemailAccessTokenExpire';
+  static const String gmailAccessTokenData = 'gmailAccessTokenData';
+  static const String gmailAccessTokenExpire = 'gmailAccessTokenExpire';
   static const String gmailIdToken = 'gmailIdToken';
   static const String gmailRefreshToken = 'gmailRefreshToken';
 
