@@ -26,7 +26,7 @@ class _PDFTabState extends State<PDFTab> {
   InvoiceHotelData? hotelInvoice;
   ex.Excel? invoiceExcel;
   ex.Excel? segmentationExcel;
-
+  bool showPdfSide = true;
   late final TextEditingController _invoiceTextController;
   late final TextEditingController _dateTextController;
   late final TextEditingController _dateOfSupplyTextController;
@@ -305,130 +305,155 @@ class _PDFTabState extends State<PDFTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return SizedBox(
-                    width: 200,
-                    height: 100,
-                    child: Expanded(
-                      child: Dialog(
-                        child: SizedBox(
-                          width: 400,
-                          height: 100,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: InkWell(
-                                  onTap: () {
-                                    FilePicker.platform
-                                        .pickFiles(
-                                          allowMultiple: false,
-                                        )
-                                        .then((result) => {
-                                              if (result != null)
-                                                {
-                                                  File(result.files[0].path!)
-                                                      .readAsBytes()
-                                                      .then((value) {
-                                                    final ex.Excel invoice =
-                                                        ex.Excel.decodeBytes(
-                                                            value);
-                                                    setState(() {
-                                                      invoiceExcel = invoice;
-                                                    });
-                                                    Navigator.pop(context);
-                                                  })
-                                                }
-                                            });
-                                  },
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(4))),
-                                    child: SizedBox(
-                                      width: 120,
-                                      height: 30,
-                                      child: Center(
-                                        child: Text(
-                                          invoiceExcel == null
-                                              ? "Choose invoice"
-                                              : 'Invoice picked',
-                                          style: TextStyle(color: Colors.white),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              onPressed: () async {
+                setState(() {
+                  showPdfSide = !showPdfSide;
+                });
+              },
+              child:
+                  Icon(showPdfSide ? Icons.visibility : Icons.visibility_off),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            FloatingActionButton(
+              onPressed: () async {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return SizedBox(
+                        width: 200,
+                        height: 100,
+                        child: Expanded(
+                          child: Dialog(
+                            child: SizedBox(
+                              width: 400,
+                              height: 100,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        FilePicker.platform
+                                            .pickFiles(
+                                              allowMultiple: false,
+                                            )
+                                            .then((result) => {
+                                                  if (result != null)
+                                                    {
+                                                      File(result
+                                                              .files[0].path!)
+                                                          .readAsBytes()
+                                                          .then((value) {
+                                                        final ex.Excel invoice =
+                                                            ex.Excel
+                                                                .decodeBytes(
+                                                                    value);
+                                                        setState(() {
+                                                          invoiceExcel =
+                                                              invoice;
+                                                        });
+                                                        Navigator.pop(context);
+                                                      })
+                                                    }
+                                                });
+                                      },
+                                      child: DecoratedBox(
+                                        decoration: const BoxDecoration(
+                                            color: Colors.blue,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(4))),
+                                        child: SizedBox(
+                                          width: 120,
+                                          height: 30,
+                                          child: Center(
+                                            child: Text(
+                                              invoiceExcel == null
+                                                  ? "Choose invoice"
+                                                  : 'Invoice picked',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: InkWell(
-                                  onTap: () {
-                                    FilePicker.platform
-                                        .pickFiles(
-                                          allowMultiple: false,
-                                        )
-                                        .then((result) => {
-                                              if (result != null)
-                                                {
-                                                  File(result.files[0].path!)
-                                                      .readAsBytes()
-                                                      .then((value) {
-                                                    final ex.Excel invoice =
-                                                        ex.Excel.decodeBytes(
-                                                            value);
-                                                    setState(() {
-                                                      segmentationExcel =
-                                                          invoice;
-                                                    });
-                                                    Navigator.pop(context);
-                                                  })
-                                                }
-                                            });
-                                  },
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(4))),
-                                    child: SizedBox(
-                                      width: 160,
-                                      height: 30,
-                                      child: Center(
-                                        child: Text(
-                                          segmentationExcel == null
-                                              ? "Choose Segmentation"
-                                              : 'Segmentation picked',
-                                          style: TextStyle(color: Colors.white),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        FilePicker.platform
+                                            .pickFiles(
+                                              allowMultiple: false,
+                                            )
+                                            .then((result) => {
+                                                  if (result != null)
+                                                    {
+                                                      File(result
+                                                              .files[0].path!)
+                                                          .readAsBytes()
+                                                          .then((value) {
+                                                        final ex.Excel invoice =
+                                                            ex.Excel
+                                                                .decodeBytes(
+                                                                    value);
+                                                        setState(() {
+                                                          segmentationExcel =
+                                                              invoice;
+                                                        });
+                                                        Navigator.pop(context);
+                                                      })
+                                                    }
+                                                });
+                                      },
+                                      child: DecoratedBox(
+                                        decoration: BoxDecoration(
+                                            color: Colors.blue,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(4))),
+                                        child: SizedBox(
+                                          width: 160,
+                                          height: 30,
+                                          child: Center(
+                                            child: Text(
+                                              segmentationExcel == null
+                                                  ? "Choose Segmentation"
+                                                  : 'Segmentation picked',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                });
-            // final excel = ex.Excel.createExcel();
-            // excel.setDefaultSheet('Sheet1');
-            // insertRow(excel);
-            // final bytes = excel.save();
-            // final blob = html.Blob([bytes], 'application/vnd.ms-excel');
-            // final url = html.Url.createObjectUrlFromBlob(blob);
-            // html.window.open(url, "_blank");
-            // html.Url.revokeObjectUrl(url);
-          },
-          child: const Icon(Icons.save),
+                      );
+                    });
+                // final excel = ex.Excel.createExcel();
+                // excel.setDefaultSheet('Sheet1');
+                // insertRow(excel);
+                // final bytes = excel.save();
+                // final blob = html.Blob([bytes], 'application/vnd.ms-excel');
+                // final url = html.Url.createObjectUrlFromBlob(blob);
+                // html.window.open(url, "_blank");
+                // html.Url.revokeObjectUrl(url);
+              },
+              child: const Icon(Icons.save),
+            ),
+          ],
         ),
         body: Row(
           children: [
@@ -1096,64 +1121,66 @@ class _PDFTabState extends State<PDFTab> {
                   ),
               ],
             )),
-            Expanded(
-              child: PdfPreview(
-                  pdfPreviewPageDecoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 1,
+            if (showPdfSide)
+              Expanded(
+                child: PdfPreview(
+                    pdfPreviewPageDecoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  build: (format) {
-                    pdf = generateInvoicePdf(
-                        hotelData: hotelInvoice,
-                        format: format,
-                        invoices: invoices,
-                        invoiceNo: _invoiceTextController.text != ''
-                            ? _invoiceTextController.text
-                            : '.',
-                        date: _dateTextController.text != ''
-                            ? _dateTextController.text
-                            : '.',
-                        dateOfSupply: _dateOfSupplyTextController.text != ''
-                            ? _dateOfSupplyTextController.text
-                            : '.',
-                        costCenter: _costCenterTextController.text != ''
-                            ? _costCenterTextController.text
-                            : '.',
-                        employeeId: _employeeIdTextController.text != ''
-                            ? _employeeIdTextController.text
-                            : '.',
-                        businessUnit: _businessUnitTextController.text != ''
-                            ? _businessUnitTextController.text
-                            : '.',
-                        bookedBy: _bookedByTextController.text != ''
-                            ? _bookedByTextController.text
-                            : '.',
-                        bookedNo: _bookNumberTextController.text != ''
-                            ? _bookNumberTextController.text
-                            : '.',
-                        firstPrice: _firstPriceTextController.text != ''
-                            ? _firstPriceTextController.text
-                            : '00.00',
-                        passengerName: _passengerNameTextController.text != ''
-                            ? _passengerNameTextController.text
-                            : '',
-                        approver: _approverTextController.text != ''
-                            ? _approverTextController.text
-                            : '',
-                        tax: _taxTextController.text != ''
-                            ? '${_taxTextController.text}.00'
-                            : '00.00',
-                        total: ((int.tryParse(_taxTextController.text) ?? 0) +
-                                (int.tryParse(_firstPriceTextController.text) ??
-                                    0))
-                            .toString(),
-                        ticketNumber: _ticketNumberController.text);
-                    return pdf!;
-                  }),
-            ),
+                    build: (format) {
+                      pdf = generateInvoicePdf(
+                          hotelData: hotelInvoice,
+                          format: format,
+                          invoices: invoices,
+                          invoiceNo: _invoiceTextController.text != ''
+                              ? _invoiceTextController.text
+                              : '.',
+                          date: _dateTextController.text != ''
+                              ? _dateTextController.text
+                              : '.',
+                          dateOfSupply: _dateOfSupplyTextController.text != ''
+                              ? _dateOfSupplyTextController.text
+                              : '.',
+                          costCenter: _costCenterTextController.text != ''
+                              ? _costCenterTextController.text
+                              : '.',
+                          employeeId: _employeeIdTextController.text != ''
+                              ? _employeeIdTextController.text
+                              : '.',
+                          businessUnit: _businessUnitTextController.text != ''
+                              ? _businessUnitTextController.text
+                              : '.',
+                          bookedBy: _bookedByTextController.text != ''
+                              ? _bookedByTextController.text
+                              : '.',
+                          bookedNo: _bookNumberTextController.text != ''
+                              ? _bookNumberTextController.text
+                              : '.',
+                          firstPrice: _firstPriceTextController.text != ''
+                              ? _firstPriceTextController.text
+                              : '00.00',
+                          passengerName: _passengerNameTextController.text != ''
+                              ? _passengerNameTextController.text
+                              : '',
+                          approver: _approverTextController.text != ''
+                              ? _approverTextController.text
+                              : '',
+                          tax: _taxTextController.text != ''
+                              ? '${_taxTextController.text}.00'
+                              : '00.00',
+                          total: ((int.tryParse(_taxTextController.text) ?? 0) +
+                                  (int.tryParse(
+                                          _firstPriceTextController.text) ??
+                                      0))
+                              .toString(),
+                          ticketNumber: _ticketNumberController.text);
+                      return pdf!;
+                    }),
+              ),
           ],
         ));
   }
