@@ -4,7 +4,11 @@ import 'package:omer_mailer/static_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyDrawer extends StatefulWidget {
-  const MyDrawer({Key? key}) : super(key: key);
+  const MyDrawer({
+    required this.tabController,
+    Key? key,
+  }) : super(key: key);
+  final TabController tabController;
 
   @override
   State<MyDrawer> createState() => _MyDrawerState();
@@ -84,6 +88,84 @@ class _MyDrawerState extends State<MyDrawer> {
             key: _key,
             child: ListView(
               children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          enableFeedback: false,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: widget.tabController.index == 0
+                                      ? Colors.blue
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              "Email Tab",
+                              style: TextStyle(
+                                fontWeight: widget.tabController.index == 0
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                          onTap: () {
+                            widget.tabController.animateTo(0);
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          enableFeedback: false,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: widget.tabController.index == 1
+                                      ? Colors.blue
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              "PDF Tab",
+                              style: TextStyle(
+                                fontWeight: widget.tabController.index == 1
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                          onTap: () {
+                            widget.tabController.animateTo(1);
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 Padding(
                   padding: const EdgeInsets.all(10),
                   child: TextFormField(
