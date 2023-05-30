@@ -173,8 +173,22 @@ class _PDFTabState extends State<PDFTab> {
     }
   }
 
-  checkToSeeIfFoldersExist() async {
-    // FileSaver instance = FileSaver.instance;
+  bool checkForDoulicatedTicketNumber() {
+    bool isTickeNumberDoublicated = false;
+    for (var table in invoiceExcel!.tables.keys) {
+      for (var row in invoiceExcel!.tables[table]!.rows) {
+        if (row[0]?.value.toString().trim() ==
+            _invoiceTextController.text.trim()) {
+          isTickeNumberDoublicated = true;
+          break;
+        }
+      }
+      if (isTickeNumberDoublicated) {
+        break;
+      }
+    }
+
+    return isTickeNumberDoublicated;
   }
 
   insertInvoiceHotelRow() {
@@ -325,119 +339,105 @@ class _PDFTabState extends State<PDFTab> {
                 showDialog(
                     context: context,
                     builder: (context) {
-                      return SizedBox(
-                        width: 200,
-                        height: 100,
-                        child: Expanded(
-                          child: Dialog(
-                            child: SizedBox(
-                              width: 400,
-                              height: 100,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: InkWell(
-                                      onTap: () {
-                                        FilePicker.platform
-                                            .pickFiles(
-                                              allowMultiple: false,
-                                            )
-                                            .then((result) => {
-                                                  if (result != null)
-                                                    {
-                                                      File(result
-                                                              .files[0].path!)
-                                                          .readAsBytes()
-                                                          .then((value) {
-                                                        final ex.Excel invoice =
-                                                            ex.Excel
-                                                                .decodeBytes(
-                                                                    value);
-                                                        setState(() {
-                                                          invoiceExcel =
-                                                              invoice;
-                                                        });
-                                                        Navigator.pop(context);
-                                                      })
-                                                    }
-                                                });
-                                      },
-                                      child: DecoratedBox(
-                                        decoration: const BoxDecoration(
-                                            color: Colors.blue,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(4))),
-                                        child: SizedBox(
-                                          width: 120,
-                                          height: 30,
-                                          child: Center(
-                                            child: Text(
-                                              invoiceExcel == null
-                                                  ? "Choose invoice"
-                                                  : 'Invoice picked',
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
+                      return Dialog(
+                        child: SizedBox(
+                          width: 400,
+                          height: 100,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: InkWell(
+                                  onTap: () {
+                                    FilePicker.platform
+                                        .pickFiles(
+                                          allowMultiple: false,
+                                        )
+                                        .then((result) => {
+                                              if (result != null)
+                                                {
+                                                  File(result.files[0].path!)
+                                                      .readAsBytes()
+                                                      .then((value) {
+                                                    final ex.Excel invoice =
+                                                        ex.Excel.decodeBytes(
+                                                            value);
+                                                    setState(() {
+                                                      invoiceExcel = invoice;
+                                                    });
+                                                    Navigator.pop(context);
+                                                  })
+                                                }
+                                            });
+                                  },
+                                  child: DecoratedBox(
+                                    decoration: const BoxDecoration(
+                                        color: Colors.blue,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(4))),
+                                    child: SizedBox(
+                                      width: 120,
+                                      height: 30,
+                                      child: Center(
+                                        child: Text(
+                                          invoiceExcel == null
+                                              ? "Choose invoice"
+                                              : 'Invoice picked',
+                                          style: TextStyle(color: Colors.white),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: InkWell(
-                                      onTap: () {
-                                        FilePicker.platform
-                                            .pickFiles(
-                                              allowMultiple: false,
-                                            )
-                                            .then((result) => {
-                                                  if (result != null)
-                                                    {
-                                                      File(result
-                                                              .files[0].path!)
-                                                          .readAsBytes()
-                                                          .then((value) {
-                                                        final ex.Excel invoice =
-                                                            ex.Excel
-                                                                .decodeBytes(
-                                                                    value);
-                                                        setState(() {
-                                                          segmentationExcel =
-                                                              invoice;
-                                                        });
-                                                        Navigator.pop(context);
-                                                      })
-                                                    }
-                                                });
-                                      },
-                                      child: DecoratedBox(
-                                        decoration: BoxDecoration(
-                                            color: Colors.blue,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(4))),
-                                        child: SizedBox(
-                                          width: 160,
-                                          height: 30,
-                                          child: Center(
-                                            child: Text(
-                                              segmentationExcel == null
-                                                  ? "Choose Segmentation"
-                                                  : 'Segmentation picked',
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: InkWell(
+                                  onTap: () {
+                                    FilePicker.platform
+                                        .pickFiles(
+                                          allowMultiple: false,
+                                        )
+                                        .then((result) => {
+                                              if (result != null)
+                                                {
+                                                  File(result.files[0].path!)
+                                                      .readAsBytes()
+                                                      .then((value) {
+                                                    final ex.Excel invoice =
+                                                        ex.Excel.decodeBytes(
+                                                            value);
+                                                    setState(() {
+                                                      segmentationExcel =
+                                                          invoice;
+                                                    });
+                                                    Navigator.pop(context);
+                                                  })
+                                                }
+                                            });
+                                  },
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                        color: Colors.blue,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(4))),
+                                    child: SizedBox(
+                                      width: 160,
+                                      height: 30,
+                                      child: Center(
+                                        child: Text(
+                                          segmentationExcel == null
+                                              ? "Choose Segmentation"
+                                              : 'Segmentation picked',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -708,11 +708,49 @@ class _PDFTabState extends State<PDFTab> {
                                           throw ErrorHint(
                                               "Invoice Excel is not picked");
                                         }
+                                        bool isDoublicated =
+                                            checkForDoulicatedTicketNumber();
+                                        print(isDoublicated);
 
-                                        if (hotelInvoice != null) {
-                                          await insertInvoiceHotelRow();
-                                          // return;
+                                        bool? shouldSave;
+                                        if (isDoublicated) {
+                                          shouldSave = await showDialog(
+                                              context: context,
+                                              builder: (con) {
+                                                return AlertDialog(
+                                                  title: const Text(
+                                                      "doublecated ticket number"),
+                                                  content: const Text(
+                                                      'do you want to insert it'),
+                                                  actions: [
+                                                    ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context, false);
+                                                        },
+                                                        child:
+                                                            const Text('NO')),
+                                                    ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context, true);
+                                                        },
+                                                        child:
+                                                            const Text('YES'))
+                                                  ],
+                                                );
+                                              });
+                                        } else {
+                                          shouldSave = true;
                                         }
+                                        if (shouldSave != true) {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          return;
+                                        }
+                                        await insertInvoiceHotelRow();
+
                                         saveFiles(
                                                 saveInvoice: true,
                                                 savePdf: true)
@@ -819,6 +857,49 @@ class _PDFTabState extends State<PDFTab> {
                                           throw ErrorHint(
                                               "Segmentation Excel is not picked");
                                         }
+
+                                        bool isDoublicated =
+                                            checkForDoulicatedTicketNumber();
+                                        print(isDoublicated);
+
+                                        bool? shouldSave;
+                                        if (isDoublicated) {
+                                          shouldSave = await showDialog(
+                                              context: context,
+                                              builder: (con) {
+                                                return AlertDialog(
+                                                  title: const Text(
+                                                      "doublecated ticket number"),
+                                                  content: const Text(
+                                                      'do you want to insert it'),
+                                                  actions: [
+                                                    ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context, false);
+                                                        },
+                                                        child:
+                                                            const Text('NO')),
+                                                    ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context, true);
+                                                        },
+                                                        child:
+                                                            const Text('YES'))
+                                                  ],
+                                                );
+                                              });
+                                        } else {
+                                          shouldSave=true;
+                                        }
+                                        if (shouldSave != true) {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                          return;
+                                        }
+
                                         await insertInvoiceRow();
                                         await insertSegmentationRow();
 
