@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omer_mailer/pdf_tab.dart';
 import 'package:pdf/pdf.dart';

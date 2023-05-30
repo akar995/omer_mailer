@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omer_mailer/ExcelHelper.dart';
 import 'package:omer_mailer/pdf_generator.dart';
-import 'package:pdf/widgets.dart' as pw;
 
 import 'package:printing/printing.dart';
 
@@ -173,22 +172,22 @@ class _PDFTabState extends State<PDFTab> {
     }
   }
 
-  bool checkForDoulicatedTicketNumber() {
-    bool isTickeNumberDoublicated = false;
+  bool checkForDuplicatedTicketNumber() {
+    bool isTicketNumberDuplicated = false;
     for (var table in invoiceExcel!.tables.keys) {
       for (var row in invoiceExcel!.tables[table]!.rows) {
         if (row[0]?.value.toString().trim() ==
             _invoiceTextController.text.trim()) {
-          isTickeNumberDoublicated = true;
+          isTicketNumberDuplicated = true;
           break;
         }
       }
-      if (isTickeNumberDoublicated) {
+      if (isTicketNumberDuplicated) {
         break;
       }
     }
 
-    return isTickeNumberDoublicated;
+    return isTicketNumberDuplicated;
   }
 
   insertInvoiceHotelRow() {
@@ -384,7 +383,8 @@ class _PDFTabState extends State<PDFTab> {
                                           invoiceExcel == null
                                               ? "Choose invoice"
                                               : 'Invoice picked',
-                                          style: TextStyle(color: Colors.white),
+                                          style: const TextStyle(
+                                              color: Colors.white),
                                         ),
                                       ),
                                     ),
@@ -418,7 +418,7 @@ class _PDFTabState extends State<PDFTab> {
                                             });
                                   },
                                   child: DecoratedBox(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                         color: Colors.blue,
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(4))),
@@ -430,7 +430,8 @@ class _PDFTabState extends State<PDFTab> {
                                           segmentationExcel == null
                                               ? "Choose Segmentation"
                                               : 'Segmentation picked',
-                                          style: TextStyle(color: Colors.white),
+                                          style: const TextStyle(
+                                              color: Colors.white),
                                         ),
                                       ),
                                     ),
@@ -708,18 +709,16 @@ class _PDFTabState extends State<PDFTab> {
                                           throw ErrorHint(
                                               "Invoice Excel is not picked");
                                         }
-                                        bool isDoublicated =
-                                            checkForDoulicatedTicketNumber();
-                                        print(isDoublicated);
-
+                                        bool isDuplicated =
+                                            checkForDuplicatedTicketNumber();
                                         bool? shouldSave;
-                                        if (isDoublicated) {
+                                        if (isDuplicated) {
                                           shouldSave = await showDialog(
                                               context: context,
                                               builder: (con) {
                                                 return AlertDialog(
                                                   title: const Text(
-                                                      "doublecated ticket number"),
+                                                      "Duplicated ticket number"),
                                                   content: const Text(
                                                       'do you want to insert it'),
                                                   actions: [
@@ -767,7 +766,7 @@ class _PDFTabState extends State<PDFTab> {
                                                       Navigator.of(context)
                                                           .pop();
                                                     },
-                                                    child: Text("Close"))
+                                                    child: const Text("Close"))
                                               ],
                                             ),
                                           );
@@ -783,14 +782,14 @@ class _PDFTabState extends State<PDFTab> {
                                         showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
-                                            title: Text("Error"),
+                                            title: const Text("Error"),
                                             content: Text(e.toString()),
                                             actions: [
                                               ElevatedButton(
                                                   onPressed: () {
                                                     Navigator.of(context).pop();
                                                   },
-                                                  child: Text("Close"))
+                                                  child: const Text("Close"))
                                             ],
                                           ),
                                         );
@@ -858,18 +857,17 @@ class _PDFTabState extends State<PDFTab> {
                                               "Segmentation Excel is not picked");
                                         }
 
-                                        bool isDoublicated =
-                                            checkForDoulicatedTicketNumber();
-                                        print(isDoublicated);
+                                        bool isDuplicated =
+                                            checkForDuplicatedTicketNumber();
 
                                         bool? shouldSave;
-                                        if (isDoublicated) {
+                                        if (isDuplicated) {
                                           shouldSave = await showDialog(
                                               context: context,
                                               builder: (con) {
                                                 return AlertDialog(
                                                   title: const Text(
-                                                      "doublecated ticket number"),
+                                                      "duplicated ticket number"),
                                                   content: const Text(
                                                       'do you want to insert it'),
                                                   actions: [
@@ -891,7 +889,7 @@ class _PDFTabState extends State<PDFTab> {
                                                 );
                                               });
                                         } else {
-                                          shouldSave=true;
+                                          shouldSave = true;
                                         }
                                         if (shouldSave != true) {
                                           setState(() {
@@ -920,7 +918,7 @@ class _PDFTabState extends State<PDFTab> {
                                                       Navigator.of(context)
                                                           .pop();
                                                     },
-                                                    child: Text("Close"))
+                                                    child: const Text("Close"))
                                               ],
                                             ),
                                           );
@@ -936,14 +934,14 @@ class _PDFTabState extends State<PDFTab> {
                                         showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
-                                            title: Text("Error"),
+                                            title: const Text("Error"),
                                             content: Text(e.toString()),
                                             actions: [
                                               ElevatedButton(
                                                   onPressed: () {
                                                     Navigator.of(context).pop();
                                                   },
-                                                  child: Text("Close"))
+                                                  child: const Text("Close"))
                                             ],
                                           ),
                                         );

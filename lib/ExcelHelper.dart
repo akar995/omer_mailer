@@ -95,24 +95,18 @@ class InvoiceStructure {
     required this.originCode,
     required this.flightNumber,
   }) {
-    print("1");
     bookingNumber = recordLocatorPNR;
-    print("2");
     final lastName =
         passengerName.substring(0, passengerName.indexOf('/')).trim();
-    print("3");
     final firstName = passengerName
         .substring(
           passengerName.indexOf('/') + 1,
           passengerName.lastIndexOf(' '),
         )
         .trim();
-    print("4");
     final sol = passengerName
         .substring(passengerName.lastIndexOf(' ') + 1, passengerName.length)
         .trim();
-    print("5");
-
     row.add(recordKey);
     row.add(sequentNumber);
     row.add(clientId);
@@ -127,13 +121,12 @@ class InvoiceStructure {
     row.add(bookingType);
     row.add(documentNumber);
     row.add(recordLocatorPNR);
-    print(bookingType);
     if (bookingType == "AIR") {
       final countryCode = flightNumber.substring(0, 2);
 
       final String? countryName = predefinedVendorCode[countryCode];
 
-      if (countryCode == null) {
+      if (countryCode.isEmpty) {
         throw ErrorHint("Vendor code is not available");
       }
       row.add(countryCode); //vender code
