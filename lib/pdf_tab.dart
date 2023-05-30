@@ -45,28 +45,15 @@ class _PDFTabState extends State<PDFTab> {
   @override
   initState() {
     super.initState();
-    // _invoiceTextController = TextEditingController();
-    // _dateTextController = TextEditingController();
-    // _dateOfSupplyTextController = TextEditingController();
-    // _costCenterTextController = TextEditingController();
-    // _employeeIdTextController = TextEditingController();
-    // _businessUnitTextController = TextEditingController();
-    // _bookedByTextController = TextEditingController();
-    // _bookNumberTextController = TextEditingController();
-    // _commissionTextController = TextEditingController();
-    // _approverTextController = TextEditingController();
-    // _passengerNameTextController = TextEditingController();
-    // _taxTextController = TextEditingController();
-    // _ticketNumberController = TextEditingController();
-    // _ticketBaseFareController = TextEditingController();
 
     _invoiceTextController = TextEditingController();
     _dateTextController = TextEditingController();
     _dateOfSupplyTextController = TextEditingController();
-    _costCenterTextController = TextEditingController();
+    _costCenterTextController = TextEditingController(text: '1425');
     _employeeIdTextController = TextEditingController();
-    _businessUnitTextController = TextEditingController();
-    _bookedByTextController = TextEditingController();
+    _businessUnitTextController =
+        TextEditingController(text: "IRQ - SNC Lavalin UK Limited-Iraq Branch");
+    _bookedByTextController = TextEditingController(text: "NEMAT");
     _bookNumberTextController = TextEditingController();
     _firstPriceTextController = TextEditingController();
     _approverTextController = TextEditingController();
