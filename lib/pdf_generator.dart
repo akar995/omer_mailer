@@ -266,7 +266,7 @@ Future<Uint8List> generateInvoicePdf({
                   ),
                 ])),
             pw.SizedBox(
-                height: hotelData == null ? 200 : 120,
+                height: hotelData == null ? 200 : 135,
                 child: pw.Column(children: [
                   if (invoices.isEmpty && hotelData != null)
                     pw.Padding(
@@ -357,23 +357,40 @@ Future<Uint8List> generateInvoicePdf({
                                 style: const pw.TextStyle(
                                   fontSize: 12,
                                 )),
-                            pw.SizedBox(
-                              width: 20,
+                          ]),
+                          pw.SizedBox(height: 5),
+                          pw.Row(children: [
+                            pw.Container(
+                              width: 243,
+                              height: 10,
                             ),
-                            pw.SizedBox(
-                              width: 240,
-                              child: pw.Text(firstPrice,
-                                  style: const pw.TextStyle(
-                                    fontSize: 11,
-                                  )),
-                            ),
-                            pw.Padding(
-                                padding: const pw.EdgeInsets.only(right: 16),
+                            pw.Align(
+                              alignment: pw.Alignment.centerRight,
+                              child: pw.ConstrainedBox(
+                                constraints: pw.BoxConstraints(minWidth: 27),
                                 child: pw.Text(firstPrice,
+                                    textAlign: pw.TextAlign.center,
                                     style: const pw.TextStyle(
                                       fontSize: 11,
-                                    ))),
-                          ])
+                                    )),
+                              ),
+                            ),
+                            pw.Spacer(),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(right: 14),
+                              child: pw.Align(
+                                alignment: pw.Alignment.centerRight,
+                                child: pw.ConstrainedBox(
+                                  constraints: pw.BoxConstraints(minWidth: 27),
+                                  child: pw.Text(firstPrice,
+                                      textAlign: pw.TextAlign.center,
+                                      style: const pw.TextStyle(
+                                        fontSize: 11,
+                                      )),
+                                ),
+                              ),
+                            ),
+                          ]),
                         ])),
                   for (int i = 0; i < invoices.length; i++)
                     pw.Row(children: [
