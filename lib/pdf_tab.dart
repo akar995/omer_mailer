@@ -586,7 +586,7 @@ class _PDFTabState extends State<PDFTab> {
                         onChanged: onTextChange,
                         controller: _firstPriceTextController,
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                          FilteringTextInputFormatter.allow(RegExp(r'-?[0-9]')),
                         ],
                         decoration: const InputDecoration(
                           labelText: 'First Price',
@@ -602,7 +602,7 @@ class _PDFTabState extends State<PDFTab> {
                         onChanged: onTextChange,
                         controller: _taxTextController,
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                          FilteringTextInputFormatter.allow(RegExp(r'-?[0-9]')),
                         ],
                         decoration: const InputDecoration(
                           labelText: 'Tax',
