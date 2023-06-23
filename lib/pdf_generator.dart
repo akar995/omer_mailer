@@ -467,7 +467,7 @@ Future<Uint8List> generateInvoicePdf({
                                         ),
                                       ))),
                                   pw.SizedBox(
-                                      width: 40,
+                                      width: 50,
                                       height: 10,
                                       child: pw.Center(
                                           child: pw.Text(
