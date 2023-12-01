@@ -23,10 +23,11 @@ Future<Uint8List> generateInvoicePdf({
   required String tax,
   required String total,
   required String ticketNumber,
+  required bool changeInvoiceText,
 }) async {
   final doc = pw.Document(title: 'Invoice ', author: 'london sky');
   final profileImage = pw.MemoryImage(
-    (await rootBundle.load('assets/images/london_sky_logo.png'))
+    (await rootBundle.load('assets/images/london_sky_logo.jpeg'))
         .buffer
         .asUint8List(),
   );
@@ -54,30 +55,31 @@ Future<Uint8List> generateInvoicePdf({
                     height: 70,
                   )),
               pw.Padding(
-                  padding: const pw.EdgeInsets.only(right: 50, top: 0),
+                  padding: const pw.EdgeInsets.only(right: 40, top: 0),
                   child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Text("LONDON SKY TRAVEL & TOURISM",
+                        pw.Text(
+                            "London Sky Company for selling Flight Tickets/Limited ",
                             style: const pw.TextStyle(
                               fontSize: 10,
                             )),
-                        pw.Text("London Sky Building",
+                        pw.Text("London sky Building",
                             style: const pw.TextStyle(
                               fontSize: 10,
                             )),
-                        pw.Text("Zara-Street-Near 30 Meter Road",
+                        pw.Text("Zaza Street-Near 30 Meter Road Erbil_Iraq",
                             style: const pw.TextStyle(
                               fontSize: 10,
                             )),
-                        pw.Text("Erbil Iraq",
+                        pw.Text("Tel No.964 7518108782",
                             style: const pw.TextStyle(
                               fontSize: 10,
                             )),
-                        pw.Text("Tel No +964 751 810 8782",
-                            style: const pw.TextStyle(
-                              fontSize: 10,
-                            )),
+                        // pw.Text("Tel No +964 751 810 8782",
+                        //     style: const pw.TextStyle(
+                        //       fontSize: 10,
+                        //     )),
                       ]))
             ]);
       },
@@ -144,7 +146,8 @@ Future<Uint8List> generateInvoicePdf({
                       pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
-                            pw.Text("Invoice No",
+                            pw.Text(
+                                changeInvoiceText ? "Credit No" : "Invoice No",
                                 style: const pw.TextStyle(
                                   fontSize: 10,
                                 )),
