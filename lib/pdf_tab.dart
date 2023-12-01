@@ -26,6 +26,7 @@ class _PDFTabState extends State<PDFTab> {
   ex.Excel? invoiceExcel;
   ex.Excel? segmentationExcel;
   bool showPdfSide = true;
+  bool changeInvoiceText = false;
   late final TextEditingController _invoiceTextController;
   late final TextEditingController _dateTextController;
   late final TextEditingController _dateOfSupplyTextController;
@@ -239,8 +240,8 @@ class _PDFTabState extends State<PDFTab> {
             vendorCode: element.code.text,
             outBoundDate: element.departDate.text,
             departTime: element.departTime.text,
-            arrivalDate: element.arrivalDate.text,
-            arrivalTime: element.arrivalTime.text,
+            arrivalDate: invoices[invoices.length - 1].arrivalDate.text,
+            arrivalTime: invoices[invoices.length - 1].arrivalTime.text,
             serviceCategory: element.classCode.text,
             totalAmountLondonSky: totalAmount,
             destinationCode: element.destinationCode.text,
@@ -308,6 +309,17 @@ class _PDFTabState extends State<PDFTab> {
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            FloatingActionButton(
+              onPressed: () async {
+                setState(() {
+                  changeInvoiceText = !changeInvoiceText;
+                });
+              },
+              child: const Icon(Icons.fingerprint),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             FloatingActionButton(
               onPressed: () async {
                 setState(() {
@@ -828,7 +840,7 @@ class _PDFTabState extends State<PDFTab> {
                             child: SizedBox(
                                 width: 100,
                                 child: ElevatedButton(
-                                    child: const Text("SAVE  Invoice"),
+                                    child: const Text("SAVE Invoice"),
                                     onPressed: () async {
                                       try {
                                         if (isLoading) return;
@@ -1020,6 +1032,57 @@ class _PDFTabState extends State<PDFTab> {
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
+                          Spacer(),
+                          IconButton(
+                              onPressed: () {
+                                String sortValue = "";
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Cancel')),
+                                            TextButton(
+                                                onPressed: () {
+                                                  int sortInt = (int.tryParse(
+                                                          sortValue) ??
+                                                      0);
+                                                  sortInt = sortInt - 1;
+                                                  if (sortInt != i &&
+                                                      sortInt >= 0 &&
+                                                      sortInt <
+                                                          invoices.length) {
+                                                    InvoiceSegmentData temp =
+                                                        invoices[i];
+                                                    invoices[i] =
+                                                        invoices[sortInt];
+                                                    invoices[sortInt] = temp;
+                                                    setState(() {});
+                                                    Navigator.pop(context);
+                                                  }
+                                                },
+                                                child: const Text('Sort'))
+                                          ],
+                                          content: TextField(
+                                            decoration: InputDecoration(
+                                              hintText:
+                                                  "Sort must be greater than zero",
+                                              label: Text("Sort Value"),
+                                            ),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly
+                                            ],
+                                            onChanged: (value) {
+                                              sortValue = value;
+                                            },
+                                          ),
+                                        ));
+                              },
+                              icon: const Icon(Icons.sort_by_alpha)),
                           IconButton(
                               onPressed: () {
                                 invoices[i].routeName.dispose();
@@ -1243,7 +1306,8 @@ class _PDFTabState extends State<PDFTab> {
                                           _firstPriceTextController.text) ??
                                       0))
                               .toString(),
-                          ticketNumber: _ticketNumberController.text);
+                          ticketNumber: _ticketNumberController.text,
+                          changeInvoiceText: changeInvoiceText);
                       return pdf!;
                     }),
               ),
