@@ -156,6 +156,18 @@ class InvoiceStructure {
     row.add(passengerID);
     row.add(tripReason);
     row.add(constCenter);
+
+    /// static rows
+
+    row.add("1425-GCMC");
+    row.add("N/A");
+    row.add("N/A	");
+    row.add("joe.golden@kentplc.com	");
+    row.add("nemat.talibmarymalik@kentplc.com	");
+    row.add("Joy Golden	");
+    row.add("IRQ - SNC Lavalin UK Limited-Iraq Branch");
+    row.add("Nemat");
+
     //// segment
     ///
     if (bookingType == "AIR") {
