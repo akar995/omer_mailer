@@ -236,7 +236,7 @@ class _EmailTabState extends State<EmailTab> {
                 SizedBox(
                   width: width / 2 - 20,
                   child: ColoredBox(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Colors.white,
                     child: Column(
                       children: [
                         Row(
