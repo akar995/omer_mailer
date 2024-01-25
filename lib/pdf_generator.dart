@@ -709,7 +709,7 @@ Future<Uint8List> generateInvoicePdf({
 Invoices must be paid as per agreed credit terms.
 Any dispute must be notified within 14 days of invoice, if not the invoice will be treated as accepted/final Beneficiary Name: LONDON SKY COMPANY FOR SELLING FLIGHT TICKETS/LIMITED
 Bank Details: BBAC s.a.l. Erbil Branch, 60M Street, Erbil, Iraq
-IBAN: IQ96 BBAC 0013 6863 1202 002 ACCOUNT NO: 0368-631202-002 SWIFT Code: BBACIQBA
+IBAN: IQ74 BBAC 0013 6863 1202 010 ACCOUNT NO: 0368-631202-002 SWIFT Code: BBACIQBA
 All invoice related queries have to be mailed to: accounts@londonskyco.com""",
                 style: const pw.TextStyle(fontSize: 10))
           ]));
