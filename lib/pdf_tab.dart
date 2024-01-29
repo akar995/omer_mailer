@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:excel/excel.dart' as ex;
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omer_mailer/ExcelHelper.dart';
@@ -213,8 +214,11 @@ class _PDFTabState extends State<PDFTab> {
           airCode: '',
           originCode: '',
           flightNumber: '');
-
-      invoiceExcel?.appendRow(table, invoice.row);
+      final List<ex.CellValue> test = [];
+      invoice.row.forEach((element) {
+        test.add(ex.TextCellValue(element.toString()));
+      });
+      invoiceExcel?.appendRow(table, test);
     }
   }
 
@@ -255,7 +259,11 @@ class _PDFTabState extends State<PDFTab> {
             flightNumber: element.code.text);
 
         if (i == 0) {
-          invoiceExcel?.appendRow(table, invoice.row);
+          final List<ex.CellValue> test = [];
+          invoice.row.forEach((element) {
+            test.add(ex.TextCellValue(element.toString()));
+          });
+          invoiceExcel?.appendRow(table, test);
         }
       }
     }
@@ -297,8 +305,11 @@ class _PDFTabState extends State<PDFTab> {
           originCode: element.originCode.text,
           flightNumber: element.code.text,
         );
-
-        segmentationExcel?.appendRow(table, invoice.segment);
+        final List<ex.CellValue> test = [];
+        invoice.segment.forEach((element) {
+          test.add(ex.TextCellValue(element.toString()));
+        });
+        segmentationExcel?.appendRow(table, test);
       }
     }
   }
@@ -309,6 +320,15 @@ class _PDFTabState extends State<PDFTab> {
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            FloatingActionButton(
+              onPressed: () async {
+                saveFiles(saveInvoice: true, saveSegment: true);
+              },
+              child: const Icon(Icons.save_alt_outlined),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             FloatingActionButton(
               onPressed: () async {
                 setState(() {
@@ -348,26 +368,36 @@ class _PDFTabState extends State<PDFTab> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: InkWell(
                                   onTap: () {
+                                    print('dasd');
                                     FilePicker.platform
                                         .pickFiles(
-                                          allowMultiple: false,
-                                        )
-                                        .then((result) => {
-                                              if (result != null)
-                                                {
-                                                  File(result.files[0].path!)
-                                                      .readAsBytes()
-                                                      .then((value) {
-                                                    final ex.Excel invoice =
-                                                        ex.Excel.decodeBytes(
-                                                            value);
-                                                    setState(() {
-                                                      invoiceExcel = invoice;
-                                                    });
-                                                    Navigator.pop(context);
-                                                  })
-                                                }
+                                      allowMultiple: false,
+                                    )
+                                        .then((result) {
+                                      if (result != null) {
+                                        if (kIsWeb) {
+                                          final ex.Excel invoice =
+                                              ex.Excel.decodeBytes(
+                                                  Uint8List.fromList(
+                                                      result.files[0].bytes!));
+                                          setState(() {
+                                            invoiceExcel = invoice;
+                                          });
+                                          Navigator.pop(context);
+                                        } else {
+                                          File(result.files[0].path!)
+                                              .readAsBytes()
+                                              .then((value) {
+                                            final ex.Excel invoice =
+                                                ex.Excel.decodeBytes(value);
+                                            setState(() {
+                                              invoiceExcel = invoice;
                                             });
+                                            Navigator.pop(context);
+                                          });
+                                        }
+                                      }
+                                    });
                                   },
                                   child: DecoratedBox(
                                     decoration: const BoxDecoration(
@@ -396,25 +426,34 @@ class _PDFTabState extends State<PDFTab> {
                                   onTap: () {
                                     FilePicker.platform
                                         .pickFiles(
-                                          allowMultiple: false,
-                                        )
-                                        .then((result) => {
-                                              if (result != null)
-                                                {
-                                                  File(result.files[0].path!)
-                                                      .readAsBytes()
-                                                      .then((value) {
-                                                    final ex.Excel invoice =
-                                                        ex.Excel.decodeBytes(
-                                                            value);
-                                                    setState(() {
-                                                      segmentationExcel =
-                                                          invoice;
-                                                    });
-                                                    Navigator.pop(context);
-                                                  })
-                                                }
+                                      allowMultiple: false,
+                                    )
+                                        .then((result) {
+                                      if (result != null) {
+                                        print(kIsWeb);
+                                        if (kIsWeb) {
+                                          final ex.Excel invoice =
+                                              ex.Excel.decodeBytes(result
+                                                  .files[0].bytes!
+                                                  .toList());
+                                          setState(() {
+                                            segmentationExcel = invoice;
+                                          });
+                                          Navigator.pop(context);
+                                        } else {
+                                          File(result.files[0].path!)
+                                              .readAsBytes()
+                                              .then((value) {
+                                            final ex.Excel invoice =
+                                                ex.Excel.decodeBytes(value);
+                                            setState(() {
+                                              segmentationExcel = invoice;
                                             });
+                                            Navigator.pop(context);
+                                          });
+                                        }
+                                      }
+                                    });
                                   },
                                   child: DecoratedBox(
                                     decoration: const BoxDecoration(
@@ -706,7 +745,7 @@ class _PDFTabState extends State<PDFTab> {
                                         });
                                         if (invoiceExcel == null) {
                                           throw ErrorHint(
-                                              "Invoice Excel is not picked");
+                                              "Invoice Excel is not pickeddd");
                                         }
                                         bool isDuplicated =
                                             checkForDuplicatedTicketNumber();
@@ -750,7 +789,7 @@ class _PDFTabState extends State<PDFTab> {
                                         await insertInvoiceHotelRow();
 
                                         saveFiles(
-                                                saveInvoice: true,
+                                                saveInvoice: false,
                                                 savePdf: true)
                                             .then((c) async {
                                           showDialog(
@@ -778,6 +817,7 @@ class _PDFTabState extends State<PDFTab> {
                                         setState(() {
                                           isLoading = false;
                                         });
+                                        print(e);
                                         showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
@@ -901,9 +941,9 @@ class _PDFTabState extends State<PDFTab> {
                                         await insertSegmentationRow();
 
                                         saveFiles(
-                                                saveInvoice: true,
+                                                saveInvoice: false,
                                                 savePdf: true,
-                                                saveSegment: true)
+                                                saveSegment: false)
                                             .then((c) {
                                           showDialog(
                                             context: context,
