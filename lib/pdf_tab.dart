@@ -126,7 +126,8 @@ class _PDFTabState extends State<PDFTab> {
     FileSaver instance = FileSaver.instance;
 
     if (savePdf && pdf != null) {
-      final String pdfName = "invoices/pdf/INV ${_invoiceTextController.text}";
+      // final String pdfName = "invoices/pdf/INV ${_invoiceTextController.text}";
+      final String pdfName = "INV_${_invoiceTextController.text}";
       String pdfPath = await instance.saveFile(
         name: pdfName,
         ext: 'pdf',
