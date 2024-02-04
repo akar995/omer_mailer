@@ -29,7 +29,12 @@
 .packages
 .pub-cache/
 .pub/
-/build/
+/build/9534af08ff51fc747eb9bedad03a9402
+/build/ios
+/build/macos
+/build/flutter_assets
+/build/9ffe3fb9e2063e195ddfbcea0cabcfef.cache.dill.track.dill
+
 
 # Web related
 lib/secret_info.dart
