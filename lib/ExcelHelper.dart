@@ -147,7 +147,7 @@ class InvoiceStructure {
     row.add(taxAmount);
     row.add(totalAmountLondonSky);
     row.add(exchangeIndicator);
-    row.add(bookingNumber);
+    row.add(bookingType == "AIR" ? documentNumber : bookingNumber);
     row.add(refoundIndicator);
     row.add(bookingAgentId);
     row.add(formOfPayment);

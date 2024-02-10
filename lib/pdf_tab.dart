@@ -22,6 +22,7 @@ class PDFTab extends StatefulWidget {
 class _PDFTabState extends State<PDFTab> {
   List<InvoiceSegmentData> invoices = [];
   Future<Uint8List>? pdf;
+  int finalDes = 1;
 
   InvoiceHotelData? hotelInvoice;
   ex.Excel? invoiceExcel;
@@ -224,6 +225,9 @@ class _PDFTabState extends State<PDFTab> {
   }
 
   insertInvoiceRow() {
+    if (finalDes > invoices.length - 1) {
+      throw ErrorHint("Pick a correct final destination");
+    }
     for (var table in invoiceExcel!.tables.keys) {
       for (int i = 0; i < invoices.length; i++) {
         final element = invoices[i];
@@ -249,7 +253,7 @@ class _PDFTabState extends State<PDFTab> {
             arrivalTime: invoices[invoices.length - 1].arrivalTime.text,
             serviceCategory: element.classCode.text,
             totalAmountLondonSky: totalAmount,
-            destinationCode: element.destinationCode.text,
+            destinationCode: invoices[finalDes].destinationCode.text,
             passengerID: _employeeIdTextController.text,
             lskFee: _taxTextController.text,
             baseFare: _ticketBaseFareController.text,
@@ -1287,6 +1291,13 @@ class _PDFTabState extends State<PDFTab> {
                           ),
                         ],
                       ),
+                      Checkbox(
+                          value: finalDes == i,
+                          onChanged: (v) {
+                            setState(() {
+                              finalDes = i;
+                            });
+                          })
                     ],
                   ),
               ],
