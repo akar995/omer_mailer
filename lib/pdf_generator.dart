@@ -27,7 +27,8 @@ Future<Uint8List> generateInvoicePdf({
 }) async {
   final doc = pw.Document(title: 'Invoice ', author: 'london sky');
   final profileImage = pw.MemoryImage(
-    (await rootBundle.load('assets/images/london_sky_logo.jpeg'))
+    // (await rootBundle.load('assets/images/london_sky_logo.jpeg'))
+    (await rootBundle.load('assets/images/london_sky_logo_new.jpg'))
         .buffer
         .asUint8List(),
   );
@@ -48,11 +49,11 @@ Future<Uint8List> generateInvoicePdf({
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
               pw.Padding(
-                  padding: const pw.EdgeInsets.only(left: 20, top: 0),
+                  padding: const pw.EdgeInsets.only(left: 20, top: 15),
                   child: pw.Image(
                     profileImage,
-                    width: 70,
-                    height: 70,
+                    width: 220,
+                    height: 220,
                   )),
               pw.Padding(
                   padding: const pw.EdgeInsets.only(right: 40, top: 0),
