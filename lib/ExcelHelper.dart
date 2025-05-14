@@ -24,12 +24,19 @@ const predefinedVendorCode = {
   "ME": "MIDDLE EAST AIRLINE",
 };
 
+// Kentech Gulf Holdings Limited Iraq
+// Branch
+// Building No.106
+// Al Kindi Street,
+// M213, Al Harithiya,
+// BAGHDAD
+// IRAQ
 class InvoiceStructure {
   final String recordKey;
   final List<dynamic> row = [];
   static const int sequentNumber = 1;
   static const int clientId = 2947;
-  static const String clientName = 'SNC-LAVALIN UK LIMITED IRAQ BRANCH';
+  static const String clientName = 'KENTECH GULF HOLDING LIMITED IRAQ BRANCH';
   final String invoiceDate;
   final String bookedDate;
   static const String voidInd = 'N';
@@ -165,7 +172,7 @@ class InvoiceStructure {
     row.add("joe.golden@kentplc.com	");
     row.add("nemat.talibmarymalik@kentplc.com	");
     row.add("Joy Golden	");
-    row.add("IRQ - SNC Lavalin UK Limited-Iraq Branch");
+    row.add("IRQ - Kentech Gulf Holdings Limited Iraq Branch");
     row.add("Nemat");
 
     //// segment
