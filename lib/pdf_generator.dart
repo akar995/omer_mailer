@@ -122,8 +122,7 @@ Future<Uint8List> generateInvoicePdf({
                                   style: const pw.TextStyle(
                                     fontSize: 10,
                                   )),
-                              pw.Text(
-                                  "Al Kindi Street",
+                              pw.Text("Al Kindi Street",
                                   style: const pw.TextStyle(
                                     fontSize: 10,
                                   )),
@@ -135,8 +134,7 @@ Future<Uint8List> generateInvoicePdf({
                                   style: const pw.TextStyle(
                                     fontSize: 10,
                                   )),
-                              pw.Text(
-                                  "IRAQ",
+                              pw.Text("IRAQ",
                                   style: const pw.TextStyle(
                                     fontSize: 10,
                                   )),
@@ -208,7 +206,7 @@ Future<Uint8List> generateInvoicePdf({
                                 )),
                             pw.Text(businessUnit,
                                 style: const pw.TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 9.5,
                                 )),
                             pw.Text(bookedBy,
                                 style: const pw.TextStyle(

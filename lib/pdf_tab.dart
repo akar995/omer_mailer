@@ -54,8 +54,8 @@ class _PDFTabState extends State<PDFTab> {
     _dateOfSupplyTextController = TextEditingController();
     _costCenterTextController = TextEditingController(text: '1425');
     _employeeIdTextController = TextEditingController();
-    _businessUnitTextController =
-        TextEditingController(text: "IRQ - Kentech Gulf Holdings Limited Iraq Branch");
+    _businessUnitTextController = TextEditingController(
+        text: "Kentech Gulf Holdings Limited Iraq Branch");
     _bookedByTextController = TextEditingController(text: "NEMAT");
     _bookNumberTextController = TextEditingController();
     _firstPriceTextController = TextEditingController();
@@ -576,7 +576,7 @@ class _PDFTabState extends State<PDFTab> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(3.0),
                       child: SizedBox(
                         width: 200,
                         child: TextField(
