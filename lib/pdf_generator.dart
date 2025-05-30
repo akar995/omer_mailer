@@ -206,7 +206,7 @@ Future<Uint8List> generateInvoicePdf({
                                 )),
                             pw.Text(businessUnit,
                                 style: const pw.TextStyle(
-                                  fontSize: 9.5,
+                                  fontSize: 8.5,
                                 )),
                             pw.Text(bookedBy,
                                 style: const pw.TextStyle(

@@ -3,7 +3,7 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"flutter_bootstrap.js": "92e1218c18c5cea1e86c36c351f50ffe",
+const RESOURCES = {"flutter_bootstrap.js": "8561eea8b4fc2af29755ebccef4f0ecd",
 "version.json": "45b7e6bc790638e9b00d3241270da256",
 "macos/Runner.xcworkspace/contents.xcworkspacedata": "7053ea3423578187357b9f92d0c67fc6",
 "macos/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist": "117105d2f2ee718eb485a07574a219b6",
@@ -33,9 +33,9 @@ const RESOURCES = {"flutter_bootstrap.js": "92e1218c18c5cea1e86c36c351f50ffe",
 "macos/Flutter/Flutter-Release.xcconfig": "2b03faed3e462ed0ed348559e4796ed8",
 "macos/Flutter/ephemeral/flutter_export_environment.sh": "e1f027403033f5024da7d29015a2a894",
 "macos/Flutter/ephemeral/Flutter-Generated.xcconfig": "e8aeecc3d0eb8bb654174e6ee5e39e2f",
-"index.html": "cd3281c0a97b06c39d9bc37c3baa8ffc",
-"/": "cd3281c0a97b06c39d9bc37c3baa8ffc",
-"main.dart.js": "d3f2486b30b7913d53b30e874eecd420",
+"index.html": "987d73dcc84923af36d8defefdd1aa22",
+"/": "987d73dcc84923af36d8defefdd1aa22",
+"main.dart.js": "4dc12cd07d50e3d0ad1c4803bb0d4787",
 "web/index.html": "dc665b23182929007425799e6bdf1825",
 "web/favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "web/icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
