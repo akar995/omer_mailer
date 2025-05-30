@@ -24,13 +24,6 @@ const predefinedVendorCode = {
   "ME": "MIDDLE EAST AIRLINE",
 };
 
-// Kentech Gulf Holdings Limited Iraq
-// Branch
-// Building No.106
-// Al Kindi Street,
-// M213, Al Harithiya,
-// BAGHDAD
-// IRAQ
 class InvoiceStructure {
   final String recordKey;
   final List<dynamic> row = [];
@@ -172,7 +165,7 @@ class InvoiceStructure {
     row.add("joe.golden@kentplc.com	");
     row.add("nemat.talibmarymalik@kentplc.com	");
     row.add("Joy Golden	");
-    row.add("IRQ - Kentech Gulf Holdings Limited Iraq Branch");
+    row.add("IRQ - Kent International Services Limited Iraq Branch");
     row.add("Nemat");
 
     //// segment

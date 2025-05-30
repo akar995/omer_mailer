@@ -114,7 +114,7 @@ Future<Uint8List> generateInvoicePdf({
                             crossAxisAlignment: pw.CrossAxisAlignment.start,
                             children: [
                               pw.Text(
-                                  "Kentech Gulf Holdings Limited Iraq Branch",
+                                  "Kent International Services Limited Iraq Branch",
                                   style: const pw.TextStyle(
                                     fontSize: 10,
                                   )),
