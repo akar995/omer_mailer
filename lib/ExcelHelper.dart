@@ -165,7 +165,7 @@ class InvoiceStructure {
     row.add("joe.golden@kentplc.com	");
     row.add("nemat.talibmarymalik@kentplc.com	");
     row.add("Joy Golden	");
-    row.add("IRQ - Kent International Services Limited Iraq Branch");
+    row.add("IRQ - Kentech Gulf Holdings Limited Iraq Branch");
     row.add("Nemat");
 
     //// segment
