@@ -7,7 +7,7 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:omer_mailer/ExcelHelper.dart';
+import 'package:omer_mailer/excel_helper.dart';
 import 'package:omer_mailer/pdf_generator.dart';
 
 import 'package:printing/printing.dart';
@@ -217,9 +217,9 @@ class _PDFTabState extends State<PDFTab> {
           originCode: '',
           flightNumber: '');
       final List<ex.CellValue> test = [];
-      invoice.row.forEach((element) {
+      for (var element in invoice.row) {
         test.add(ex.TextCellValue(element.toString()));
-      });
+      }
       invoiceExcel?.appendRow(table, test);
     }
   }
@@ -265,9 +265,9 @@ class _PDFTabState extends State<PDFTab> {
 
         if (i == 0) {
           final List<ex.CellValue> test = [];
-          invoice.row.forEach((element) {
+          for (var element in invoice.row) {
             test.add(ex.TextCellValue(element.toString()));
-          });
+          }
           invoiceExcel?.appendRow(table, test);
         }
       }
@@ -311,9 +311,9 @@ class _PDFTabState extends State<PDFTab> {
           flightNumber: element.code.text,
         );
         final List<ex.CellValue> test = [];
-        invoice.segment.forEach((element) {
+        for (var element in invoice.segment) {
           test.add(ex.TextCellValue(element.toString()));
-        });
+        }
         segmentationExcel?.appendRow(table, test);
       }
     }
@@ -373,7 +373,6 @@ class _PDFTabState extends State<PDFTab> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: InkWell(
                                   onTap: () {
-                                    print('dasd');
                                     FilePicker.platform
                                         .pickFiles(
                                       allowMultiple: false,
@@ -388,7 +387,9 @@ class _PDFTabState extends State<PDFTab> {
                                           setState(() {
                                             invoiceExcel = invoice;
                                           });
-                                          Navigator.pop(context);
+                                          if (context.mounted) {
+                                            Navigator.pop(context);
+                                          }
                                         } else {
                                           File(result.files[0].path!)
                                               .readAsBytes()
@@ -398,7 +399,9 @@ class _PDFTabState extends State<PDFTab> {
                                             setState(() {
                                               invoiceExcel = invoice;
                                             });
-                                            Navigator.pop(context);
+                                            if (context.mounted) {
+                                              Navigator.pop(context);
+                                            }
                                           });
                                         }
                                       }
@@ -435,7 +438,6 @@ class _PDFTabState extends State<PDFTab> {
                                     )
                                         .then((result) {
                                       if (result != null) {
-                                        print(kIsWeb);
                                         if (kIsWeb) {
                                           final ex.Excel invoice =
                                               ex.Excel.decodeBytes(result
@@ -444,7 +446,9 @@ class _PDFTabState extends State<PDFTab> {
                                           setState(() {
                                             segmentationExcel = invoice;
                                           });
-                                          Navigator.pop(context);
+                                          if (context.mounted) {
+                                            Navigator.pop(context);
+                                          }
                                         } else {
                                           File(result.files[0].path!)
                                               .readAsBytes()
@@ -454,7 +458,9 @@ class _PDFTabState extends State<PDFTab> {
                                             setState(() {
                                               segmentationExcel = invoice;
                                             });
-                                            Navigator.pop(context);
+                                            if (context.mounted) {
+                                              Navigator.pop(context);
+                                            }
                                           });
                                         }
                                       }
@@ -797,12 +803,40 @@ class _PDFTabState extends State<PDFTab> {
                                                 saveInvoice: false,
                                                 savePdf: true)
                                             .then((c) async {
+                                          if (context.mounted) {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (context) => AlertDialog(
+                                                title:
+                                                    const Text("Data inserted"),
+                                                actions: [
+                                                  ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child:
+                                                          const Text("Close"))
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                        });
+
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                      } catch (e) {
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                        if (context.mounted) {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: false,
                                             builder: (context) => AlertDialog(
-                                              title:
-                                                  const Text("Data inserted"),
+                                              title: const Text("Error"),
+                                              content: Text(e.toString()),
                                               actions: [
                                                 ElevatedButton(
                                                     onPressed: () {
@@ -813,30 +847,7 @@ class _PDFTabState extends State<PDFTab> {
                                               ],
                                             ),
                                           );
-                                        });
-
-                                        setState(() {
-                                          isLoading = false;
-                                        });
-                                      } catch (e) {
-                                        setState(() {
-                                          isLoading = false;
-                                        });
-                                        print(e);
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text("Error"),
-                                            content: Text(e.toString()),
-                                            actions: [
-                                              ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: const Text("Close"))
-                                            ],
-                                          ),
-                                        );
+                                        }
                                       }
                                     })),
                           )
@@ -950,12 +961,40 @@ class _PDFTabState extends State<PDFTab> {
                                                 savePdf: true,
                                                 saveSegment: false)
                                             .then((c) {
+                                          if (context.mounted) {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (context) => AlertDialog(
+                                                title:
+                                                    const Text("Data inserted"),
+                                                actions: [
+                                                  ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child:
+                                                          const Text("Close"))
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                        });
+
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                      } catch (e) {
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                        if (context.mounted) {
                                           showDialog(
                                             context: context,
-                                            barrierDismissible: false,
                                             builder: (context) => AlertDialog(
-                                              title:
-                                                  const Text("Data inserted"),
+                                              title: const Text("Error"),
+                                              content: Text(e.toString()),
                                               actions: [
                                                 ElevatedButton(
                                                     onPressed: () {
@@ -966,29 +1005,7 @@ class _PDFTabState extends State<PDFTab> {
                                               ],
                                             ),
                                           );
-                                        });
-
-                                        setState(() {
-                                          isLoading = false;
-                                        });
-                                      } catch (e) {
-                                        setState(() {
-                                          isLoading = false;
-                                        });
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text("Error"),
-                                            content: Text(e.toString()),
-                                            actions: [
-                                              ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: const Text("Close"))
-                                            ],
-                                          ),
-                                        );
+                                        }
                                       }
                                     })),
                           )
@@ -1077,7 +1094,7 @@ class _PDFTabState extends State<PDFTab> {
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           IconButton(
                               onPressed: () {
                                 String sortValue = "";
@@ -1112,7 +1129,7 @@ class _PDFTabState extends State<PDFTab> {
                                                 child: const Text('Sort'))
                                           ],
                                           content: TextField(
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               hintText:
                                                   "Sort must be greater than zero",
                                               label: Text("Sort Value"),

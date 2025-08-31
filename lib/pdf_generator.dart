@@ -370,7 +370,7 @@ Future<Uint8List> generateInvoicePdf({
                             pw.Align(
                               alignment: pw.Alignment.centerRight,
                               child: pw.ConstrainedBox(
-                                constraints: pw.BoxConstraints(minWidth: 27),
+                                constraints: const pw.BoxConstraints(minWidth: 27),
                                 child: pw.Text(firstPrice,
                                     textAlign: pw.TextAlign.center,
                                     style: const pw.TextStyle(
@@ -380,11 +380,11 @@ Future<Uint8List> generateInvoicePdf({
                             ),
                             pw.Spacer(),
                             pw.Padding(
-                              padding: pw.EdgeInsets.only(right: 14),
+                              padding: const pw.EdgeInsets.only(right: 14),
                               child: pw.Align(
                                 alignment: pw.Alignment.centerRight,
                                 child: pw.ConstrainedBox(
-                                  constraints: pw.BoxConstraints(minWidth: 27),
+                                  constraints: const pw.BoxConstraints(minWidth: 27),
                                   child: pw.Text(firstPrice,
                                       textAlign: pw.TextAlign.center,
                                       style: const pw.TextStyle(

@@ -6,8 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MyDrawer extends StatefulWidget {
   const MyDrawer({
     required this.tabController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   final TabController tabController;
 
   @override
@@ -70,12 +70,14 @@ class _MyDrawerState extends State<MyDrawer> {
           shared.getString(StaticInfo.delayTimerInMillisecond) ?? '';
       setState(() {});
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("SMTP Restored"),
-        behavior: SnackBarBehavior.floating,
-        width: 140,
-        duration: Duration(milliseconds: 1000),
-      ));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("SMTP Restored"),
+          behavior: SnackBarBehavior.floating,
+          width: 140,
+          duration: Duration(milliseconds: 1000),
+        ));
+      }
     });
   }
 
@@ -374,14 +376,15 @@ class _MyDrawerState extends State<MyDrawer> {
                               StaticInfo.smtpAllowInsecure, allowInsecure);
 
                           shared.setBool(StaticInfo.smtpEnableSSL, enableSSL);
-
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                            content: Text("SMTP saved"),
-                            behavior: SnackBarBehavior.floating,
-                            width: 140,
-                          ));
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("SMTP saved"),
+                              behavior: SnackBarBehavior.floating,
+                              width: 140,
+                            ));
+                          }
                         });
                       }
                     },

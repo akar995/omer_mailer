@@ -3,7 +3,7 @@ import 'package:omer_mailer/static_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class IsLogin extends StatefulWidget {
-  const IsLogin({Key? key}) : super(key: key);
+  const IsLogin({super.key});
 
   @override
   State<IsLogin> createState() => _IsLoginState();

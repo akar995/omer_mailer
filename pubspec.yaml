@@ -42,12 +42,11 @@ dependencies:
   excel: ^4.0.1
   file_saver: ^0.2.9
 
+  http: any
 dependency_overrides:
   http: ^1.2.0
 
 dev_dependencies:
-  flutter:
-    sdk: flutter
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
