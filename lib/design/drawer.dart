@@ -81,6 +81,42 @@ class _MyDrawerState extends State<MyDrawer> {
     });
   }
 
+// Add this private helper inside _MyDrawerState:
+  Widget _drawerTabButton({required String label, required int index}) {
+    final isActive = widget.tabController.index == index;
+    return Expanded(
+      child: Center(
+        child: InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          enableFeedback: false,
+          focusColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          onTap: () {
+            widget.tabController.animateTo(index);
+            setState(() {});
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: isActive ? Colors.blue : Colors.transparent,
+                  width: 2,
+                ),
+              ),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -92,80 +128,9 @@ class _MyDrawerState extends State<MyDrawer> {
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Center(
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          enableFeedback: false,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: widget.tabController.index == 0
-                                      ? Colors.blue
-                                      : Colors.transparent,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              "Email Tab",
-                              style: TextStyle(
-                                fontWeight: widget.tabController.index == 0
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            widget.tabController.animateTo(0);
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          enableFeedback: false,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: widget.tabController.index == 1
-                                      ? Colors.blue
-                                      : Colors.transparent,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              "PDF Tab",
-                              style: TextStyle(
-                                fontWeight: widget.tabController.index == 1
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            widget.tabController.animateTo(1);
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                    ),
+                    _drawerTabButton(label: "Email Tab", index: 0),
+                    _drawerTabButton(label: "PDF Tab", index: 1),
+                    _drawerTabButton(label: "PDF v2", index: 2),
                   ],
                 ),
                 Padding(

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omer_mailer/excel_helper.dart';
 import 'package:omer_mailer/pdf_generator.dart';
+import 'package:omer_mailer/segment_mock.dart';
 
 import 'package:printing/printing.dart';
 
@@ -853,6 +854,20 @@ class _PDFTabState extends State<PDFTab> {
                           )
                         ],
                       ),
+                      TextButton(
+                          onPressed: () {
+                            setState(() {
+                              invoices.add(
+                                SegmentMock.nextMockSegment(
+                                  invoices,
+                                  startAirport: 'EBL', // optional
+                                  finalAirport: 'DOH', // optional hint
+                                  startDate: DateTime.now(), // optional
+                                ),
+                              );
+                            });
+                          },
+                          child: Text("add Mock Data")),
                       Row(
                         children: [
                           Padding(
