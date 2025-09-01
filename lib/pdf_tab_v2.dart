@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omer_mailer/segment_mock.dart';
+import 'package:excel/excel.dart' as ex;
 
 import 'package:printing/printing.dart';
 
@@ -21,6 +26,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
   // Reuse your existing patterns but add the new fields:
   final invoices = <InvoiceSegmentData>[];
   Future<Uint8List>? pdf;
+  ex.Excel? invoiceExcel;
+  ex.Excel? segmentationExcel;
 
   // existing
   final _invoiceTextController = TextEditingController();
@@ -43,6 +50,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
   final _serviceFeeController = TextEditingController();
   final _co2eController = TextEditingController();
   final _travelTypeController = TextEditingController();
+  final _tripReasonController = TextEditingController(text: 'Rotation');
+  final _projectCodeController = TextEditingController(text: '1425-GCMC');
 
   // toggles
   bool changeInvoiceText = false; // same behavior as v1
@@ -77,7 +86,72 @@ class _PDFTabV2State extends State<PDFTabV2> {
     _serviceFeeController.dispose();
     _co2eController.dispose();
     _travelTypeController.dispose();
+    _tripReasonController.dispose();
+    _projectCodeController.dispose();
+
     super.dispose();
+  }
+
+  filesCanNotSave() {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: const Text('File failed Save'),
+              content: const Text(
+                  'Please make sure you have a folder named "invoices" in your downloads folder\n'
+                  'and that you have pdf and excel folders in it'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('OK'))
+              ],
+            ));
+  }
+
+  Future saveFiles({
+    final bool savePdf = false,
+    final bool saveInvoice = false,
+    final bool saveSegment = false,
+  }) async {
+    FileSaver instance = FileSaver.instance;
+
+    if (savePdf && pdf != null) {
+      // final String pdfName = "invoices/pdf/INV ${_invoiceTextController.text}";
+      final String pdfName = "INV_${_invoiceTextController.text}";
+      String pdfPath = await instance.saveFile(
+        name: pdfName,
+        ext: 'pdf',
+        bytes: await pdf,
+      );
+      if (pdfPath.contains("Something went wrong")) {
+        filesCanNotSave();
+        throw Exception("Something went wrong");
+      }
+    }
+    if (saveInvoice && invoiceExcel != null) {
+      String invoicePath = await instance.saveFile(
+        name: 'invoices/excel/invoiceExcel',
+        ext: 'xlsx',
+        bytes: Uint8List.fromList(invoiceExcel!.encode()!),
+      );
+      if (invoicePath.contains("Something went wrong")) {
+        filesCanNotSave();
+        throw Exception("Something went wrong");
+      }
+    }
+    if (saveSegment && segmentationExcel != null) {
+      String segmentPath = await instance.saveFile(
+        name: 'invoices/excel/segmentationExcel',
+        ext: 'xlsx',
+        bytes: Uint8List.fromList(segmentationExcel!.encode()!),
+      );
+      if (segmentPath.contains("Something went wrong")) {
+        filesCanNotSave();
+        throw Exception("Something went wrong");
+      }
+    }
   }
 
   InputDecoration _dec(String label) => InputDecoration(labelText: label);
@@ -85,6 +159,180 @@ class _PDFTabV2State extends State<PDFTabV2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () async {
+              saveFiles(saveInvoice: true, saveSegment: true);
+            },
+            child: const Icon(Icons.save_alt_outlined),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          FloatingActionButton(
+            onPressed: () async {
+              setState(() {
+                changeInvoiceText = !changeInvoiceText;
+              });
+            },
+            child: const Icon(Icons.fingerprint),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          FloatingActionButton(
+            onPressed: () async {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return Dialog(
+                      child: SizedBox(
+                        width: 400,
+                        height: 100,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: InkWell(
+                                onTap: () {
+                                  FilePicker.platform
+                                      .pickFiles(
+                                    allowMultiple: false,
+                                  )
+                                      .then((result) {
+                                    if (result != null) {
+                                      if (kIsWeb) {
+                                        final ex.Excel invoice =
+                                            ex.Excel.decodeBytes(
+                                                Uint8List.fromList(
+                                                    result.files[0].bytes!));
+                                        setState(() {
+                                          invoiceExcel = invoice;
+                                        });
+                                        if (context.mounted) {
+                                          Navigator.pop(context);
+                                        }
+                                      } else {
+                                        File(result.files[0].path!)
+                                            .readAsBytes()
+                                            .then((value) {
+                                          final ex.Excel invoice =
+                                              ex.Excel.decodeBytes(value);
+                                          setState(() {
+                                            invoiceExcel = invoice;
+                                          });
+                                          if (context.mounted) {
+                                            Navigator.pop(context);
+                                          }
+                                        });
+                                      }
+                                    }
+                                  });
+                                },
+                                child: DecoratedBox(
+                                  decoration: const BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(4))),
+                                  child: SizedBox(
+                                    width: 120,
+                                    height: 30,
+                                    child: Center(
+                                      child: Text(
+                                        invoiceExcel == null
+                                            ? "Choose invoice"
+                                            : 'Invoice picked',
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: InkWell(
+                                onTap: () {
+                                  FilePicker.platform
+                                      .pickFiles(
+                                    allowMultiple: false,
+                                  )
+                                      .then((result) {
+                                    if (result != null) {
+                                      if (kIsWeb) {
+                                        final ex.Excel invoice =
+                                            ex.Excel.decodeBytes(result
+                                                .files[0].bytes!
+                                                .toList());
+                                        setState(() {
+                                          segmentationExcel = invoice;
+                                        });
+                                        if (context.mounted) {
+                                          Navigator.pop(context);
+                                        }
+                                      } else {
+                                        File(result.files[0].path!)
+                                            .readAsBytes()
+                                            .then((value) {
+                                          final ex.Excel invoice =
+                                              ex.Excel.decodeBytes(value);
+                                          setState(() {
+                                            segmentationExcel = invoice;
+                                          });
+                                          if (context.mounted) {
+                                            Navigator.pop(context);
+                                          }
+                                        });
+                                      }
+                                    }
+                                  });
+                                },
+                                child: DecoratedBox(
+                                  decoration: const BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(4))),
+                                  child: SizedBox(
+                                    width: 160,
+                                    height: 30,
+                                    child: Center(
+                                      child: Text(
+                                        segmentationExcel == null
+                                            ? "Choose Segmentation"
+                                            : 'Segmentation picked',
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  });
+              // final excel = ex.Excel.createExcel();
+              // excel.setDefaultSheet('Sheet1');
+              // insertRow(excel);
+              // final bytes = excel.save();
+              // final blob = html.Blob([bytes], 'application/vnd.ms-excel');
+              // final url = html.Url.createObjectUrlFromBlob(blob);
+              // html.window.open(url, "_blank");
+              // html.Url.revokeObjectUrl(url);
+            },
+            child: const Icon(Icons.save),
+          ),
+        ],
+      ),
       appBar: AppBar(
         title: const Text('PDF v2'),
         actions: [
@@ -268,6 +516,22 @@ class _PDFTabV2State extends State<PDFTabV2> {
                         decoration: _dec('CO2e'),
                       ),
                     ),
+                    SizedBox(
+                      width: 200,
+                      child: TextField(
+                        controller: _tripReasonController,
+                        onChanged: _onTextChange,
+                        decoration: _dec('Trip Reason'),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 200,
+                      child: TextField(
+                        controller: _projectCodeController,
+                        onChanged: _onTextChange,
+                        decoration: _dec('Project Code'),
+                      ),
+                    ),
 
                     // Approver
                     SizedBox(
@@ -329,6 +593,20 @@ class _PDFTabV2State extends State<PDFTabV2> {
                       child: Text(
                           hotelInvoice == null ? "Add Hotel" : "Remove Hotel"),
                     ),
+                    TextButton(
+                        onPressed: () {
+                          setState(() {
+                            invoices.add(
+                              SegmentMock.nextMockSegment(
+                                invoices,
+                                startAirport: 'EBL', // optional
+                                finalAirport: 'DOH', // optional hint
+                                startDate: DateTime.now(), // optional
+                              ),
+                            );
+                          });
+                        },
+                        child: const Text("add Mock Dataaaa")),
                   ],
                 ),
                 if (hotelInvoice != null && invoices.isEmpty) ...[
@@ -342,20 +620,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
               ],
             ),
           ),
-          TextButton(
-              onPressed: () {
-                setState(() {
-                  invoices.add(
-                    SegmentMock.nextMockSegment(
-                      invoices,
-                      startAirport: 'EBL', // optional
-                      finalAirport: 'DOH', // optional hint
-                      startDate: DateTime.now(), // optional
-                    ),
-                  );
-                });
-              },
-              child: const Text("add Mock Data")),
+
           // PDF preview
           Expanded(
             child: PdfPreview(
@@ -365,56 +630,57 @@ class _PDFTabV2State extends State<PDFTabV2> {
               ),
               build: (pageFormat) {
                 pdf = generateInvoicePdfV2(
-                  hotelData: hotelInvoice,
-                  format: pageFormat,
-                  invoices: invoices,
-                  invoiceNo: _invoiceTextController.text.isNotEmpty
-                      ? _invoiceTextController.text
-                      : '.',
-                  date: _dateTextController.text.isNotEmpty
-                      ? _dateTextController.text
-                      : '.',
-                  dateOfSupply: _dateOfSupplyTextController.text.isNotEmpty
-                      ? _dateOfSupplyTextController.text
-                      : '.',
-                  costCenter: _costCenterTextController.text.isNotEmpty
-                      ? _costCenterTextController.text
-                      : '.',
-                  employeeId: _employeeIdTextController.text.isNotEmpty
-                      ? _employeeIdTextController.text
-                      : '.',
-                  businessUnit: _businessUnitTextController.text.isNotEmpty
-                      ? _businessUnitTextController.text
-                      : '.',
-                  bookedBy: _bookedByTextController.text.isNotEmpty
-                      ? _bookedByTextController.text
-                      : '.',
-                  bookedNo: _bookNumberTextController.text.isNotEmpty
-                      ? _bookNumberTextController.text
-                      : '.',
-                  firstPrice: _firstPriceTextController.text.isNotEmpty
-                      ? _firstPriceTextController.text
-                      : '0',
-                  commission: _commissionTextController.text.isNotEmpty
-                      ? _commissionTextController.text
-                      : '0',
-                  airlineCarrierTaxes:
-                      _airlineCarrierTaxController.text.isNotEmpty
-                          ? _airlineCarrierTaxController.text
-                          : '0',
-                  serviceFee: _serviceFeeController.text.isNotEmpty
-                      ? _serviceFeeController.text
-                      : '0',
-                  passengerName: _passengerNameTextController.text,
-                  approver: _approverTextController.text,
-                  total: '0', // recalculated inside generator
-                  ticketNumber: _ticketNumberController.text,
-                  co2e: _co2eController.text,
-                  travelType: _travelTypeController.text,
-                  changeInvoiceText: changeInvoiceText,
-                  useNewCompanyAddress: useNewCompanyAddress,
-                  useAltCustomerBlock: useAltCustomerBlock,
-                );
+                    hotelData: hotelInvoice,
+                    format: pageFormat,
+                    invoices: invoices,
+                    invoiceNo: _invoiceTextController.text.isNotEmpty
+                        ? _invoiceTextController.text
+                        : '.',
+                    date: _dateTextController.text.isNotEmpty
+                        ? _dateTextController.text
+                        : '.',
+                    dateOfSupply: _dateOfSupplyTextController.text.isNotEmpty
+                        ? _dateOfSupplyTextController.text
+                        : '.',
+                    costCenter: _costCenterTextController.text.isNotEmpty
+                        ? _costCenterTextController.text
+                        : '.',
+                    employeeId: _employeeIdTextController.text.isNotEmpty
+                        ? _employeeIdTextController.text
+                        : '.',
+                    businessUnit: _businessUnitTextController.text.isNotEmpty
+                        ? _businessUnitTextController.text
+                        : '.',
+                    bookedBy: _bookedByTextController.text.isNotEmpty
+                        ? _bookedByTextController.text
+                        : '.',
+                    bookedNo: _bookNumberTextController.text.isNotEmpty
+                        ? _bookNumberTextController.text
+                        : '.',
+                    firstPrice: _firstPriceTextController.text.isNotEmpty
+                        ? _firstPriceTextController.text
+                        : '0',
+                    commission: _commissionTextController.text.isNotEmpty
+                        ? _commissionTextController.text
+                        : '0',
+                    airlineCarrierTaxes:
+                        _airlineCarrierTaxController.text.isNotEmpty
+                            ? _airlineCarrierTaxController.text
+                            : '0',
+                    serviceFee: _serviceFeeController.text.isNotEmpty
+                        ? _serviceFeeController.text
+                        : '0',
+                    passengerName: _passengerNameTextController.text,
+                    approver: _approverTextController.text,
+                    total: '0', // recalculated inside generator
+                    ticketNumber: _ticketNumberController.text,
+                    co2e: _co2eController.text,
+                    travelType: _travelTypeController.text,
+                    changeInvoiceText: changeInvoiceText,
+                    useNewCompanyAddress: useNewCompanyAddress,
+                    useAltCustomerBlock: useAltCustomerBlock,
+                    projectCode: _projectCodeController.text,
+                    tripReason: _tripReasonController.text);
                 return pdf!;
               },
             ),

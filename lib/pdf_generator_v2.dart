@@ -1,4 +1,3 @@
-
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -29,6 +28,8 @@ Future<Uint8List> generateInvoicePdfV2({
   required String ticketNumber,
   required String co2e,
   required String travelType,
+  required String tripReason,
+  required String projectCode,
   required bool changeInvoiceText,
   required bool useNewCompanyAddress,
   required bool useAltCustomerBlock,
@@ -142,11 +143,14 @@ Future<Uint8List> generateInvoicePdfV2({
 
             // Title
             pw.SizedBox(height: gap(6)),
-            pw.Align(
-              alignment: pw.Alignment.centerRight,
-              child: pw.Text(
-                changeInvoiceText ? "Credit Note" : "Tax Invoice",
-                style: t(size: 12, bold: true),
+            pw.Padding(
+              padding: pw.EdgeInsets.only(right: 100),
+              child: pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Text(
+                  changeInvoiceText ? "Credit Note" : "Tax Invoice",
+                  style: t(size: 12, bold: true),
+                ),
               ),
             ),
 
@@ -179,8 +183,7 @@ Future<Uint8List> generateInvoicePdfV2({
                       _kv("Business Unit", businessUnit, t, valueSize: 9),
                       _kv("Booked By", bookedBy, t),
                       _kv("Booking No.", bookedNo, t),
-                      _kv("Travel type", travelType, t),
-                      _kv("CO2e", co2e, t),
+                      _kv("Approver Line Manager Name", approver, t),
                     ],
                   ),
                 ),
@@ -418,8 +421,8 @@ Future<Uint8List> generateInvoicePdfV2({
               children: [
                 pw.Expanded(
                   flex: 32,
-                  child: pw.Text("Approver Line Manager Name",
-                      style: t(size: 10)),
+                  child:
+                      pw.Text("Approver Line Manager Name", style: t(size: 10)),
                 ),
                 pw.Expanded(
                   flex: 68,
@@ -436,7 +439,7 @@ Future<Uint8List> generateInvoicePdfV2({
                 ),
                 pw.Expanded(
                   flex: 68,
-                  child: pw.Text("Rotation", style: t(size: 10)),
+                  child: pw.Text(tripReason, style: t(size: 10)),
                 ),
               ],
             ),
@@ -449,10 +452,35 @@ Future<Uint8List> generateInvoicePdfV2({
                 ),
                 pw.Expanded(
                   flex: 68,
-                  child: pw.Text("1425-GCMC", style: t(size: 10)),
+                  child: pw.Text(projectCode, style: t(size: 10)),
                 ),
               ],
             ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  flex: 32,
+                  child: pw.Text("CO2e", style: t(size: 10)),
+                ),
+                pw.Expanded(
+                  flex: 68,
+                  child: pw.Text(co2e, style: t(size: 10)),
+                ),
+              ],
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  flex: 32,
+                  child: pw.Text("Travel type", style: t(size: 10)),
+                ),
+                pw.Expanded(
+                  flex: 68,
+                  child: pw.Text(travelType, style: t(size: 10)),
+                ),
+              ],
+            ),
+
             pw.SizedBox(height: gap(6)),
             pw.Divider(height: 0.5),
             pw.SizedBox(height: gap(2)),
