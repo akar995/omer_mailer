@@ -211,14 +211,22 @@ class SegmentMock {
     if ((origin == 'DOH') && (dest == 'EBL' || dest == 'BGW')) return 'QR';
 
     if ((origin == 'EBL' || origin == 'BGW') &&
-        (dest == 'IST' || dest == 'SAW')) return 'TK';
+        (dest == 'IST' || dest == 'SAW')) {
+      return 'TK';
+    }
     if ((origin == 'IST' || origin == 'SAW') &&
-        (dest == 'EBL' || dest == 'BGW')) return 'TK';
+        (dest == 'EBL' || dest == 'BGW')) {
+      return 'TK';
+    }
 
     if ((origin == 'EBL' || origin == 'BGW') &&
-        (dest == 'DXB' || dest == 'SHJ')) return rand.nextBool() ? 'FZ' : 'G9';
+        (dest == 'DXB' || dest == 'SHJ')) {
+      return rand.nextBool() ? 'FZ' : 'G9';
+    }
     if ((origin == 'DXB' || origin == 'SHJ') &&
-        (dest == 'EBL' || dest == 'BGW')) return rand.nextBool() ? 'FZ' : 'G9';
+        (dest == 'EBL' || dest == 'BGW')) {
+      return rand.nextBool() ? 'FZ' : 'G9';
+    }
 
     if ((origin == 'DXB') && (dest == 'DOH' || dest == 'IST')) return 'EK';
 

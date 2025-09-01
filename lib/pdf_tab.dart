@@ -867,7 +867,7 @@ class _PDFTabState extends State<PDFTab> {
                               );
                             });
                           },
-                          child: Text("add Mock Data")),
+                          child: const Text("add Mock Data")),
                       Row(
                         children: [
                           Padding(

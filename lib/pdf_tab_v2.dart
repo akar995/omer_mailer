@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omer_mailer/segment_mock.dart';
@@ -357,7 +355,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
                   );
                 });
               },
-              child: Text("add Mock Data")),
+              child: const Text("add Mock Data")),
           // PDF preview
           Expanded(
             child: PdfPreview(
