@@ -278,18 +278,22 @@ class _PDFTabV2State extends State<PDFTabV2> {
                                           Navigator.pop(context);
                                         }
                                       } else {
-                                        File(result.files[0].path!)
-                                            .readAsBytes()
-                                            .then((value) {
-                                          final ex.Excel invoice =
-                                              ex.Excel.decodeBytes(value);
-                                          setState(() {
-                                            segmentationExcel = invoice;
+                                        try {
+                                          File(result.files[0].path!)
+                                              .readAsBytes()
+                                              .then((value) {
+                                            final ex.Excel invoice =
+                                                ex.Excel.decodeBytes(value);
+                                            setState(() {
+                                              segmentationExcel = invoice;
+                                            });
+                                            if (context.mounted) {
+                                              Navigator.pop(context);
+                                            }
                                           });
-                                          if (context.mounted) {
-                                            Navigator.pop(context);
-                                          }
-                                        });
+                                        } catch (e) {
+                                          print(e);
+                                        }
                                       }
                                     }
                                   });
