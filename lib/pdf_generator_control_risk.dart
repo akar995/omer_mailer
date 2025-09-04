@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:number_to_text_converter/number_to_text_converter.dart';
 
 /// Generates a single-page invoice styled like the Control Risk sample.
 Future<Uint8List> generateControlRiskInvoicePdf({
@@ -52,6 +53,8 @@ Future<Uint8List> generateControlRiskInvoicePdf({
   String bankAddress =
       'BBAC s.a.l., Erbil branch, 60 M Street, End of Iskan Tunnel',
 }) async {
+  var converter = NumberToTextConverter.forInternationalNumberingSystem();
+
   final pdf = pw.Document(title: 'Invoice $invoiceNo');
 
   // Assets
@@ -135,7 +138,7 @@ Future<Uint8List> generateControlRiskInvoicePdf({
 
   // Column widths — tuned to fit one line
   final colWidths = <int, pw.TableColumnWidth>{
-    0: const pw.FlexColumnWidth(10),
+    0: const pw.FlexColumnWidth(9),
     1: const pw.FlexColumnWidth(18),
     2: const pw.FlexColumnWidth(16),
     3: const pw.FlexColumnWidth(14),
@@ -158,7 +161,11 @@ Future<Uint8List> generateControlRiskInvoicePdf({
 
   pdf.addPage(
     pw.Page(
-      pageFormat: PdfPageFormat.a4,
+      pageFormat: PdfPageFormat(
+        1000 * 1.4142857143,
+        1000,
+      ),
+      orientation: pw.PageOrientation.landscape,
       margin: const pw.EdgeInsets.fromLTRB(16, 14, 16, 14),
       build: (ctx) {
         return pw.Column(
@@ -187,26 +194,32 @@ Future<Uint8List> generateControlRiskInvoicePdf({
             pw.SizedBox(height: gap(6)),
 
             // Blue bar of headers
-            pw.Container(
-              color: PdfColor.fromHex('081e5b'),
-              padding:
-                  const pw.EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-              child: pw.Text(
-                headers.join('   '),
-                style: t(
-                  size: 8.5,
-                  bold: true,
-                  color: PdfColor.fromHex('ceb553'),
-                ),
-              ),
-            ),
 
             // Table (1 row)
+
             pw.Table(
               border: pw.TableBorder.all(color: PdfColors.black, width: 0.4),
               defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
               columnWidths: colWidths,
               children: [
+                pw.TableRow(
+                  verticalAlignment: pw.TableCellVerticalAlignment.full,
+                  decoration:
+                      pw.BoxDecoration(color: PdfColor.fromHex('08b8f4')),
+                  children: List.generate(headers.length, (i) {
+                    return pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 6,
+                      ),
+                      child: pw.Text(
+                        headers[i],
+                        style: t(size: 5, color: PdfColors.black, bold: true),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                    );
+                  }),
+                ),
                 pw.TableRow(
                   children: List.generate(headers.length, (i) {
                     return pw.Padding(
@@ -216,9 +229,8 @@ Future<Uint8List> generateControlRiskInvoicePdf({
                       ),
                       child: pw.Text(
                         rowValues[i],
-                        style: t(size: 8.5),
-                        textAlign:
-                            i == 7 ? pw.TextAlign.right : pw.TextAlign.left,
+                        style: t(size: 8.5, bold: true),
+                        textAlign: pw.TextAlign.center,
                       ),
                     );
                   }),
@@ -227,31 +239,34 @@ Future<Uint8List> generateControlRiskInvoicePdf({
             ),
 
             // Summary (right-aligned mini-table with two rows)
-            pw.SizedBox(height: gap(6)),
+            // pw.SizedBox(height: gap(6)),
             pw.Row(
               children: [
-                pw.Expanded(child: pw.SizedBox()),
+                // pw.Expanded(child: pw.SizedBox()),
                 pw.SizedBox(
-                  width: 220,
+                  width: 583,
                   child: pw.Table(
                     border:
                         pw.TableBorder.all(color: PdfColors.black, width: 0.4),
                     columnWidths: const {
-                      0: pw.FlexColumnWidth(1),
+                      0: pw.FlexColumnWidth(7.8),
                       1: pw.FlexColumnWidth(1),
                     },
                     children: [
                       pw.TableRow(
                         children: [
-                          _cellRight(
-                              money(amountNumeric, cur: cur), t(size: 9)),
-                          _cellRight('', t(size: 9)),
-                        ],
-                      ),
-                      pw.TableRow(
-                        children: [
-                          _cellRight('', t(size: 9)),
-                          _cellRight('', t(size: 9)),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(
+                                converter.convert(amountNumeric.toInt()),
+                                style: t(size: 9),
+                                textAlign: pw.TextAlign.center),
+                          ),
+                          pw.Container(
+                              decoration: pw.BoxDecoration(
+                                  color: PdfColor.fromHex('c0d4ec')),
+                              child: _cellRight(
+                                  money(amountNumeric, cur: cur), t(size: 9))),
                         ],
                       ),
                     ],

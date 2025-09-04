@@ -41,6 +41,7 @@ dependencies:
   printing: ^5.11.1
   excel: ^4.0.6
   file_saver: ^0.2.9
+  number_to_text_converter: ^1.0.4
 
   http: any
 dependency_overrides:
