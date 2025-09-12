@@ -6,6 +6,7 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:omer_mailer/excel_helper.dart';
 import 'package:omer_mailer/segment_mock.dart';
 import 'package:excel/excel.dart' as ex;
 
@@ -28,6 +29,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
   Future<Uint8List>? pdf;
   ex.Excel? invoiceExcel;
   ex.Excel? segmentationExcel;
+  int finalDes = 1;
 
   // existing
   final _invoiceTextController = TextEditingController();
@@ -59,7 +61,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
   bool useAltCustomerBlock = false; // NEW
 
   InvoiceHotelData? hotelInvoice; // keep your hotel option
-
+  bool isLoading = false;
   Timer? _debounce;
   void _onTextChange(_) {
     _debounce?.cancel();
@@ -155,6 +157,161 @@ class _PDFTabV2State extends State<PDFTabV2> {
   }
 
   InputDecoration _dec(String label) => InputDecoration(labelText: label);
+  bool checkForDuplicatedTicketNumber() {
+    bool isTicketNumberDuplicated = false;
+    for (var table in invoiceExcel!.tables.keys) {
+      for (var row in invoiceExcel!.tables[table]!.rows) {
+        if (row[0]?.value.toString().trim() ==
+            _invoiceTextController.text.trim()) {
+          isTicketNumberDuplicated = true;
+          break;
+        }
+      }
+      if (isTicketNumberDuplicated) {
+        break;
+      }
+    }
+
+    return isTicketNumberDuplicated;
+  }
+
+  insertInvoiceRow() {
+    if (finalDes > invoices.length - 1) {
+      throw ErrorHint("Pick a correct final destination");
+    }
+    for (var table in invoiceExcel!.tables.keys) {
+      for (int i = 0; i < invoices.length; i++) {
+        final element = invoices[i];
+
+        final int totalAmount =
+            (int.tryParse(_firstPriceTextController.text) ?? 0) +
+                (int.tryParse(_airlineCarrierTaxController.text) ?? 0);
+        final int taxAmount =
+            totalAmount - (int.tryParse(_firstPriceTextController.text) ?? 0);
+        final InvoiceStructure invoice = InvoiceStructure(
+            recordKey: _invoiceTextController.text,
+            invoiceDate: _dateTextController.text,
+            bookedDate: _dateOfSupplyTextController.text,
+            salutation: _approverTextController.text,
+            passengerName: _passengerNameTextController.text,
+            bookingType: "AIR",
+            documentNumber: _ticketNumberController.text,
+            recordLocatorPNR: _bookNumberTextController.text,
+            vendorCode: element.code.text,
+            outBoundDate: element.departDate.text,
+            departTime: element.departTime.text,
+            arrivalDate: invoices[invoices.length - 1].arrivalDate.text,
+            arrivalTime: invoices[invoices.length - 1].arrivalTime.text,
+            serviceCategory: element.classCode.text,
+            totalAmountLondonSky: totalAmount,
+            destinationCode: invoices[finalDes].destinationCode.text,
+            passengerID: _employeeIdTextController.text,
+            lskFee: _airlineCarrierTaxController.text,
+            baseFare: _firstPriceTextController.text,
+            taxAmount: taxAmount,
+            segmentLeg: i + 1,
+            airCode: element.originCode.text,
+            originCode: element.originCode.text,
+            flightNumber: element.code.text);
+
+        if (i == 0) {
+          final List<ex.CellValue> test = [];
+          for (var element in invoice.row) {
+            test.add(ex.TextCellValue(element.toString()));
+          }
+          invoiceExcel?.appendRow(table, test);
+        }
+      }
+    }
+  }
+
+  insertSegmentationRow() {
+    for (var table in segmentationExcel!.tables.keys) {
+      for (int i = 0; i < invoices.length; i++) {
+        final element = invoices[i];
+
+        final int totalAmount =
+            (int.tryParse(_firstPriceTextController.text) ?? 0) +
+                (int.tryParse(_airlineCarrierTaxController.text) ?? 0);
+        final int taxAmount =
+            totalAmount - (int.tryParse(_firstPriceTextController.text) ?? 0);
+        final InvoiceStructure invoice = InvoiceStructure(
+          recordKey: _invoiceTextController.text,
+          invoiceDate: _dateTextController.text,
+          bookedDate: _dateOfSupplyTextController.text,
+          salutation: _approverTextController.text,
+          passengerName: _passengerNameTextController.text,
+          bookingType: "AIR",
+          documentNumber: _ticketNumberController.text,
+          recordLocatorPNR: _bookNumberTextController.text,
+          vendorCode: element.routeName.text,
+          outBoundDate: element.departDate.text,
+          departTime: element.departTime.text,
+          arrivalDate: element.arrivalDate.text,
+          arrivalTime: element.arrivalTime.text,
+          serviceCategory: element.classCode.text,
+          totalAmountLondonSky: totalAmount,
+          destinationCode: element.destinationCode.text,
+          passengerID: _employeeIdTextController.text,
+          lskFee: _airlineCarrierTaxController.text,
+          baseFare: _firstPriceTextController.text,
+          taxAmount: taxAmount,
+          segmentLeg: i + 1,
+          airCode: element.originCode.text,
+          originCode: element.originCode.text,
+          flightNumber: element.code.text,
+        );
+        final List<ex.CellValue> test = [];
+        for (var element in invoice.segment) {
+          test.add(ex.TextCellValue(element.toString()));
+        }
+        segmentationExcel?.appendRow(table, test);
+      }
+    }
+  }
+
+  insertInvoiceHotelRow() {
+    for (var table in invoiceExcel!.tables.keys) {
+      // for (int i = 0; i < invoices.length; i++) {
+
+      final int totalAmount =
+          (int.tryParse(_firstPriceTextController.text) ?? 0) +
+              (int.tryParse(_airlineCarrierTaxController.text) ?? 0);
+      final int taxAmount =
+          totalAmount - (int.tryParse(_firstPriceTextController.text) ?? 0);
+
+      final InvoiceStructure invoice = InvoiceStructure(
+          recordKey: _invoiceTextController.text,
+          invoiceDate: _dateTextController.text,
+          bookedDate: _dateOfSupplyTextController.text,
+          salutation: _approverTextController.text,
+          passengerName: _passengerNameTextController.text,
+          bookingType: "HTL",
+          documentNumber: _bookNumberTextController.text,
+          recordLocatorPNR: _bookNumberTextController.text,
+          vendorCode: hotelInvoice!.hotelName.text,
+          outBoundDate: hotelInvoice!.checkIn.text,
+          departTime: '',
+          arrivalDate: hotelInvoice!.checkOut.text,
+          arrivalTime: '',
+          serviceCategory: '',
+          totalAmountLondonSky: totalAmount,
+          destinationCode: hotelInvoice!.hotelDestination.text,
+          passengerID: _employeeIdTextController.text,
+          lskFee: _airlineCarrierTaxController.text,
+          baseFare: _firstPriceTextController.text,
+          taxAmount: taxAmount,
+          segmentLeg: 1,
+          airCode: '',
+          originCode: '',
+          flightNumber: '');
+      final List<ex.CellValue> test = [];
+      for (var element in invoice.row) {
+        test.add(ex.TextCellValue(element.toString()));
+      }
+      invoiceExcel?.appendRow(table, test);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -611,6 +768,219 @@ class _PDFTabV2State extends State<PDFTabV2> {
                           });
                         },
                         child: const Text("add Mock Dataaaa")),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                          width: 100,
+                          child: ElevatedButton(
+                              child: const Text("SAVE Invoice"),
+                              onPressed: () async {
+                                try {
+                                  if (isLoading) return;
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  if (invoiceExcel == null) {
+                                    throw ErrorHint(
+                                        "Invoice Excel is not picked");
+                                  }
+                                  if (segmentationExcel == null) {
+                                    throw ErrorHint(
+                                        "Segmentation Excel is not picked");
+                                  }
+
+                                  bool isDuplicated =
+                                      checkForDuplicatedTicketNumber();
+
+                                  bool? shouldSave;
+                                  if (isDuplicated) {
+                                    shouldSave = await showDialog(
+                                        context: context,
+                                        builder: (con) {
+                                          return AlertDialog(
+                                            title: const Text(
+                                                "duplicated ticket number"),
+                                            content: const Text(
+                                                'do you want to insert it'),
+                                            actions: [
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, false);
+                                                  },
+                                                  child: const Text('NO')),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, true);
+                                                  },
+                                                  child: const Text('YES'))
+                                            ],
+                                          );
+                                        });
+                                  } else {
+                                    shouldSave = true;
+                                  }
+                                  if (shouldSave != true) {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                    return;
+                                  }
+
+                                  await insertInvoiceRow();
+                                  await insertSegmentationRow();
+
+                                  saveFiles(
+                                          saveInvoice: false,
+                                          savePdf: true,
+                                          saveSegment: false)
+                                      .then((c) {
+                                    if (context.mounted) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text("Data inserted"),
+                                          actions: [
+                                            ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text("Close"))
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                  });
+
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                } catch (e) {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  if (context.mounted) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text("Error"),
+                                        content: Text(e.toString()),
+                                        actions: [
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text("Close"))
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                }
+                              })),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                          width: 100,
+                          child: ElevatedButton(
+                              child: const Text("SAVE hotel"),
+                              onPressed: () async {
+                                try {
+                                  if (isLoading) return;
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  if (invoiceExcel == null) {
+                                    throw ErrorHint(
+                                        "Invoice Excel is not pickeddd");
+                                  }
+                                  bool isDuplicated =
+                                      checkForDuplicatedTicketNumber();
+                                  bool? shouldSave;
+                                  if (isDuplicated) {
+                                    shouldSave = await showDialog(
+                                        context: context,
+                                        builder: (con) {
+                                          return AlertDialog(
+                                            title: const Text(
+                                                "Duplicated ticket number"),
+                                            content: const Text(
+                                                'do you want to insert it'),
+                                            actions: [
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, false);
+                                                  },
+                                                  child: const Text('NO')),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, true);
+                                                  },
+                                                  child: const Text('YES'))
+                                            ],
+                                          );
+                                        });
+                                  } else {
+                                    shouldSave = true;
+                                  }
+                                  if (shouldSave != true) {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                    return;
+                                  }
+                                  await insertInvoiceHotelRow();
+
+                                  saveFiles(saveInvoice: false, savePdf: true)
+                                      .then((c) async {
+                                    if (context.mounted) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text("Data inserted"),
+                                          actions: [
+                                            ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text("Close"))
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                  });
+
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                } catch (e) {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  if (context.mounted) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text("Error"),
+                                        content: Text(e.toString()),
+                                        actions: [
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text("Close"))
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                }
+                              })),
+                    )
                   ],
                 ),
                 if (hotelInvoice != null && invoices.isEmpty) ...[

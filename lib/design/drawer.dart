@@ -170,6 +170,43 @@ class _MyDrawerState extends State<MyDrawer> {
                         ),
                       ),
                     ),
+                    Expanded(
+                      child: Center(
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          enableFeedback: false,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: widget.tabController.index == 2
+                                      ? Colors.blue
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              "PDF Tab 2",
+                              style: TextStyle(
+                                fontWeight: widget.tabController.index == 2
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                          onTap: () {
+                            widget.tabController.animateTo(2);
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    ),
                   ],
                 ),
 
@@ -582,84 +619,88 @@ class _MyDrawerState extends State<MyDrawer> {
       // 5) Process rows
       int created = 0;
       for (int r = headerStartAt; r < sheet.rows.length; r++) {
-        final row = sheet.rows[r];
+        try {
+          final row = sheet.rows[r];
 
-        String invoiceNo = _cellString(row.safeAt(idxInvNo!));
-        if (invoiceNo.isEmpty) {
-          // skip empty rows
-          continue;
-        }
+          String invoiceNo = _cellString(row.safeAt(idxInvNo!));
+          if (invoiceNo.isEmpty) {
+            // skip empty rows
+            continue;
+          }
 
-        // Values
-        final product = _cellString(row.safeAt(idxProduct!));
-        final supplier = _cellString(row.safeAt(idxSupplier!));
-        final ticket = _cellString(row.safeAt(idxTicket!));
-        final issuedDate = _cellString(row.safeAt(idxIssuedDate!));
-        final pnr = _cellString(row.safeAt(idxPNR ?? -1));
-        final pax = _cellString(row.safeAt(idxPax!));
-        final amountStr = _cellString(row.safeAt(idxAmount!));
-        final cls = _cellString(row.safeAt(idxClass ?? -1));
-        final depDate = _cellString(row.safeAt(idxDepDate ?? -1));
-        final retDate = _cellString(row.safeAt(idxRetDate ?? -1));
-        final routing = _cellString(row.safeAt(idxRouting ?? -1));
-        final checkIn = _cellString(row.safeAt(idxCheckIn ?? -1));
-        final checkOut = _cellString(row.safeAt(idxCheckOut ?? -1));
-        final bookedBy = _cellString(row.safeAt(idxBookedBy ?? -1));
-        final projCode = _cellString(row.safeAt(idxProjCode ?? -1));
-        final locCode = _cellString(row.safeAt(idxLocCode ?? -1));
-        final resType = _cellString(row.safeAt(idxResType ?? -1));
-        final reason = _cellString(row.safeAt(idxReason ?? -1));
+          // Values
+          final product = _cellString(row.safeAt(idxProduct!));
+          final supplier = _cellString(row.safeAt(idxSupplier!));
+          final ticket = _cellString(row.safeAt(idxTicket!));
+          final issuedDate = _cellString(row.safeAt(idxIssuedDate!));
+          final pnr = _cellString(row.safeAt(idxPNR ?? -1));
+          final pax = _cellString(row.safeAt(idxPax!));
+          final amountStr = _cellString(row.safeAt(idxAmount!));
+          final cls = _cellString(row.safeAt(idxClass ?? -1));
+          final depDate = _cellString(row.safeAt(idxDepDate ?? -1));
+          final retDate = _cellString(row.safeAt(idxRetDate ?? -1));
+          final routing = _cellString(row.safeAt(idxRouting ?? -1));
+          final checkIn = _cellString(row.safeAt(idxCheckIn ?? -1));
+          final checkOut = _cellString(row.safeAt(idxCheckOut ?? -1));
+          final bookedBy = _cellString(row.safeAt(idxBookedBy ?? -1));
+          final projCode = _cellString(row.safeAt(idxProjCode ?? -1));
+          final locCode = _cellString(row.safeAt(idxLocCode ?? -1));
+          final resType = _cellString(row.safeAt(idxResType ?? -1));
+          final reason = _cellString(row.safeAt(idxReason ?? -1));
 
-        // Amount parse (tolerant)
-        final amt = _parseAmount(amountStr);
+          // Amount parse (tolerant)
+          final amt = _parseAmount(amountStr);
 
-        // Invoice date and label
-        final invDateStr = issuedDate.isNotEmpty ? issuedDate : '';
-        final invDateLabel = _monthLabelFromDateLike(invDateStr) ?? '---';
+          // Invoice date and label
+          final invDateStr = issuedDate.isNotEmpty ? issuedDate : '';
+          final invDateLabel = _monthLabelFromDateLike(invDateStr) ?? '---';
 
-        // 6) Generate PDF bytes
-        final bytes = await generateControlRiskInvoicePdf(
-          invoiceDate: invDateStr.isNotEmpty ? invDateStr : '—',
-          invoiceNo: invoiceNo,
-          product: product,
-          supplierName: supplier,
-          ticketOrVoucherNo: ticket,
-          ticketIssuedDate: issuedDate,
-          airlinePNR: pnr,
-          passengerName: pax,
-          internalInvoiceNo: invoiceNo,
-          className: cls,
-          departureDate: depDate,
-          returnDate: retDate,
-          routing: routing,
-          checkIn: checkIn,
-          checkOut: checkOut,
-          bookedBy: bookedBy,
-          projectCode: projCode,
-          locationCode: locCode,
-          reservationType: resType,
-          reasonForTravel: reason,
-          amountNumeric: amt,
-          amountCurrency: 'USD',
-          billTo: 'CONTROL RISK',
-          invoiceMonthLabel: invDateLabel,
-        );
-
-        // 7) Save
-        final safeName =
-            'INV_${invoiceNo.replaceAll(RegExp(r"[^A-Za-z0-9._-]"), "_")}';
-        if (outDir != null) {
-          final file = File('$outDir/$safeName.pdf');
-          await file.writeAsBytes(bytes, flush: true);
-        } else {
-          // web / mobile -> show Save As per file
-          await FileSaver.instance.saveFile(
-            name: safeName,
-            ext: 'pdf',
-            bytes: bytes,
+          // 6) Generate PDF bytes
+          final bytes = await generateControlRiskInvoicePdf(
+            invoiceDate: invDateStr.isNotEmpty ? invDateStr : '—',
+            invoiceNo: invoiceNo,
+            product: product,
+            supplierName: supplier,
+            ticketOrVoucherNo: ticket,
+            ticketIssuedDate: issuedDate,
+            airlinePNR: pnr,
+            passengerName: pax,
+            internalInvoiceNo: invoiceNo,
+            className: cls,
+            departureDate: depDate,
+            returnDate: retDate,
+            routing: routing,
+            checkIn: checkIn,
+            checkOut: checkOut,
+            bookedBy: bookedBy,
+            projectCode: projCode,
+            locationCode: locCode,
+            reservationType: resType,
+            reasonForTravel: reason,
+            amountNumeric: amt,
+            amountCurrency: 'USD',
+            billTo: 'CONTROL RISK',
+            invoiceMonthLabel: invDateLabel,
           );
+
+          // 7) Save
+          final safeName =
+              'INV_${invoiceNo.replaceAll(RegExp(r"[^A-Za-z0-9._-]"), "_")}';
+          if (outDir != null) {
+            final file = File('$outDir/$safeName.pdf');
+            await file.writeAsBytes(bytes, flush: true);
+          } else {
+            // web / mobile -> show Save As per file
+            await FileSaver.instance.saveFile(
+              name: safeName,
+              ext: 'pdf',
+              bytes: bytes,
+            );
+          }
+          created++;
+        } catch (e) {
+          print(e);
         }
-        created++;
       }
 
       _toast('Generated $created PDF(s).');
