@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:number_to_text_converter/number_to_text_converter.dart';
+// import 'package:number_to_text_converter/number_to_text_converter.dart';
 
 /// Generates a single-page invoice styled like the Control Risk sample.
 Future<Uint8List> generateControlRiskInvoicePdf({
@@ -29,6 +29,7 @@ Future<Uint8List> generateControlRiskInvoicePdf({
   required String locationCode, // e.g.  -
   required String reservationType, // e.g. Billable / Non-Billable
   required String reasonForTravel, // e.g. Rotational
+  required String viqNumbers, // e.g. Rotational
 
   // Money
   required num amountNumeric, // 109.00
@@ -42,7 +43,7 @@ Future<Uint8List> generateControlRiskInvoicePdf({
   // Company Details
   String companyTitle = 'London Sky Company For Selling Flight Tickets Limited',
   String companyAddress = 'Minra, Zaza Street, Erbil, Iraq',
-  String companyPhone = '+964 [0] 7518108782',
+  String companyPhone = '+964 [0] 7506963383',
   String companyEmail = 'accounts@londonskyco.com',
   // Bank
   String bankAccountName = 'LONDON SKY FOR TICKETING LIMITED',
@@ -53,13 +54,13 @@ Future<Uint8List> generateControlRiskInvoicePdf({
   String bankAddress =
       'BBAC s.a.l., Erbil branch, 60 M Street, End of Iskan Tunnel',
 }) async {
-  var converter = NumberToTextConverter.forInternationalNumberingSystem();
+  // var converter = NumberToTextConverter.forInternationalNumberingSystem();
 
   final pdf = pw.Document(title: 'Invoice $invoiceNo');
 
   // Assets
   final logo = pw.MemoryImage(
-    (await rootBundle.load('assets/images/london_sky_logo_new.jpg'))
+    (await rootBundle.load('assets/images/control_risk_logo.jpeg'))
         .buffer
         .asUint8List(),
   );
@@ -112,6 +113,7 @@ Future<Uint8List> generateControlRiskInvoicePdf({
     'Location Code',
     'Reservation Type',
     'Reason for travel',
+    'VIQ Numbers',
   ];
 
   final rowValues = <String>[
@@ -134,6 +136,7 @@ Future<Uint8List> generateControlRiskInvoicePdf({
     locationCode,
     reservationType,
     reasonForTravel,
+    viqNumbers
   ];
 
   // Column widths — tuned to fit one line
@@ -175,18 +178,51 @@ Future<Uint8List> generateControlRiskInvoicePdf({
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Container(
-                  width: 120,
-                  height: 120,
-                  alignment: pw.Alignment.centerLeft,
-                  child: pw.Image(logo, fit: pw.BoxFit.contain),
-                ),
+                pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Container(
+                        width: 120,
+                        height: 120,
+                        alignment: pw.Alignment.centerLeft,
+                        child: pw.Image(logo, fit: pw.BoxFit.contain),
+                      ),
+                      pw.Text(
+                        'Invoice Of $invoiceMonthLabel',
+                        style: t(size: 11, bold: true),
+                      ),
+                      _kv('Invoice Date', invoiceDate, t),
+                      _kv('Invoice No', invoiceNo, t),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.Text('TO :  ', style: t(size: 10, bold: true)),
+                          pw.Text(upper(billTo), style: t(size: 10)),
+                        ],
+                      ),
+                    ]),
                 pw.Spacer(),
                 pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
                   children: [
-                    _kv('Invoice Date', invoiceDate, t),
-                    _kv('Invoice No', invoiceNo, t),
+                    pw.Text(
+                      upper(
+                          'LONDON SKY COMPANY FOR SELLING FLIGHT TICKETS /LIMITED'),
+                      style: t(size: 10, bold: true),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Text(
+                      upper('ERBIL, IRAQ'),
+                      style: t(size: 10, bold: true),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Text(
+                      companyPhone,
+                      style: t(size: 10, bold: true),
+                      textAlign: pw.TextAlign.center,
+                    ),
                   ],
                 ),
               ],
@@ -257,8 +293,7 @@ Future<Uint8List> generateControlRiskInvoicePdf({
                         children: [
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(
-                                converter.convert(amountNumeric.toInt()),
+                            child: pw.Text(amountWords,
                                 style: t(size: 9),
                                 textAlign: pw.TextAlign.center),
                           ),
@@ -309,51 +344,6 @@ Future<Uint8List> generateControlRiskInvoicePdf({
                 ),
 
                 pw.SizedBox(width: 12),
-
-                // Right: Stamp-like area
-                pw.Expanded(
-                  flex: 5,
-                  child: pw.Container(
-                    padding: const pw.EdgeInsets.only(right: 8),
-                    alignment: pw.Alignment.topRight,
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.center,
-                      children: [
-                        pw.Text(
-                          upper(
-                              'LONDON SKY COMPANY FOR SELLING FLIGHT TICKETS /LIMITED'),
-                          style: t(size: 10, bold: true),
-                          textAlign: pw.TextAlign.center,
-                        ),
-                        pw.SizedBox(height: 6),
-                        pw.Text(
-                          upper('ERBIL, IRAQ'),
-                          style: t(size: 10, bold: true),
-                          textAlign: pw.TextAlign.center,
-                        ),
-                        pw.SizedBox(height: 16),
-                        pw.Row(
-                          mainAxisAlignment: pw.MainAxisAlignment.center,
-                          children: [
-                            pw.Text('TO :  ', style: t(size: 10, bold: true)),
-                            pw.Text(upper(billTo), style: t(size: 10)),
-                          ],
-                        ),
-                        pw.SizedBox(height: 16),
-                        pw.Text(
-                          amountWords,
-                          style: t(size: 10, bold: true),
-                          textAlign: pw.TextAlign.center,
-                        ),
-                        pw.SizedBox(height: 16),
-                        pw.Text(
-                          'Invoice Of $invoiceMonthLabel',
-                          style: t(size: 11, bold: true),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ],
             ),
           ],

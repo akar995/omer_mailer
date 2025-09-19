@@ -563,6 +563,7 @@ class _MyDrawerState extends State<MyDrawer> {
       final idxResType = col('Reservation Type', []);
       final idxReason =
           col('Reason for travel', ['Reason For Travel', 'Reason']);
+      final idxViqNumber = col('VIQ numbers', ['VIQ numbers', 'VIQ']);
 
       final missing = <String>[];
       void req(String name, int? idx) {
@@ -631,6 +632,7 @@ class _MyDrawerState extends State<MyDrawer> {
           final locCode = _cellString(row.safeAt(idxLocCode ?? -1));
           final resType = _cellString(row.safeAt(idxResType ?? -1));
           final reason = _cellString(row.safeAt(idxReason ?? -1));
+          final viqNumber = _cellString(row.safeAt(idxViqNumber ?? -1));
 
           // Amount parse (tolerant)
           final amt = _parseAmount(amountStr);
@@ -641,31 +643,31 @@ class _MyDrawerState extends State<MyDrawer> {
 
           // 6) Generate PDF bytes
           final bytes = await generateControlRiskInvoicePdf(
-            invoiceDate: invDateStr.isNotEmpty ? invDateStr : '—',
-            invoiceNo: invoiceNo,
-            product: product,
-            supplierName: supplier,
-            ticketOrVoucherNo: ticket,
-            ticketIssuedDate: issuedDate,
-            airlinePNR: pnr,
-            passengerName: pax,
-            internalInvoiceNo: invoiceNo,
-            className: cls,
-            departureDate: depDate,
-            returnDate: retDate,
-            routing: routing,
-            checkIn: checkIn,
-            checkOut: checkOut,
-            bookedBy: bookedBy,
-            projectCode: projCode,
-            locationCode: locCode,
-            reservationType: resType,
-            reasonForTravel: reason,
-            amountNumeric: amt,
-            amountCurrency: 'USD',
-            billTo: 'CONTROL RISK',
-            invoiceMonthLabel: invDateLabel,
-          );
+              invoiceDate: invDateStr.isNotEmpty ? invDateStr : '—',
+              invoiceNo: invoiceNo,
+              product: product,
+              supplierName: supplier,
+              ticketOrVoucherNo: ticket,
+              ticketIssuedDate: issuedDate,
+              airlinePNR: pnr,
+              passengerName: pax,
+              internalInvoiceNo: invoiceNo,
+              className: cls,
+              departureDate: depDate,
+              returnDate: retDate,
+              routing: routing,
+              checkIn: checkIn,
+              checkOut: checkOut,
+              bookedBy: bookedBy,
+              projectCode: projCode,
+              locationCode: locCode,
+              reservationType: resType,
+              reasonForTravel: reason,
+              amountNumeric: amt,
+              amountCurrency: 'USD',
+              billTo: 'CONTROL RISK',
+              invoiceMonthLabel: invDateLabel,
+              viqNumbers: viqNumber);
 
           // 7) Save
           final safeName =
