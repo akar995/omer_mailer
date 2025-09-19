@@ -3,11 +3,11 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"flutter_bootstrap.js": "7cd470f7cc2898b868dfa25c25d82e27",
+const RESOURCES = {"flutter_bootstrap.js": "c60416874cdb41059ffd38a790404b2c",
 "version.json": "45b7e6bc790638e9b00d3241270da256",
 "index.html": "c881ca5100a6c79bba4e4a5e25ba9b81",
 "/": "c881ca5100a6c79bba4e4a5e25ba9b81",
-"main.dart.js": "5b01e897c54e217f8f1334a1c185f23e",
+"main.dart.js": "d57dc974a4493e2898db43d8d1b36cc9",
 "flutter.js": "888483df48293866f9f41d3d9274a779",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
@@ -21,7 +21,7 @@ const RESOURCES = {"flutter_bootstrap.js": "7cd470f7cc2898b868dfa25c25d82e27",
 "assets/AssetManifest.bin.json": "0184feaacb18617912a5202e33dad70a",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
 "assets/AssetManifest.bin": "5c114647a77869435060fb3d63f1e7fa",
-"assets/fonts/MaterialIcons-Regular.otf": "4a00926b185764577712e642ee1d51f0",
+"assets/fonts/MaterialIcons-Regular.otf": "eeb0d8e6e10420ae0ad725abcf8ac762",
 "assets/assets/images/london_sky_logo_new.jpg": "d924dbd0437a0e5c221cc8c5f0ae682b",
 "assets/assets/images/london_sky_logo.jpeg": "41e7efa6da57cf8ac05ac3d989218f4c",
 "assets/assets/images/london_sky_logo_old.png": "c4960b9cceef5694b1d474d1de77a472",
