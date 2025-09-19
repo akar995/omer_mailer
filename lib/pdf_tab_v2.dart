@@ -30,6 +30,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
   ex.Excel? invoiceExcel;
   ex.Excel? segmentationExcel;
   int finalDes = 1;
+  String? _invoiceExcelName;
+  String? _segmentationExcelName;
 
   // existing
   final _invoiceTextController = TextEditingController();
@@ -158,6 +160,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
         ext: 'xlsx',
         bytes: Uint8List.fromList(segmentationExcel!.encode()!),
       );
+
       if (segmentPath.contains("Something went wrong")) {
         filesCanNotSave();
         throw Exception("Something went wrong");
@@ -201,6 +204,9 @@ class _PDFTabV2State extends State<PDFTabV2> {
             salutation: _approverTextController.text,
             passengerName: _passengerNameTextController.text,
             bookingType: "AIR",
+            travelType: _travelTypeController.text,
+            tripReason: _tripReasonController.text,
+            co2e: _co2eController.text,
             documentNumber: _ticketNumberController.text,
             recordLocatorPNR: _bookNumberTextController.text,
             vendorCode: element.code.text,
@@ -214,8 +220,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
             passengerID: _employeeIdTextController.text,
             lskFee: _airlineCarrierTaxController.text,
             baseFare: _netPriceTextController.text,
-            taxAmount: 0,
-            shouldEnterTaxAmount: false,
+            taxAmount: int.tryParse(_serviceFeeController.text) ?? 0,
+            shouldEnterTaxAmount: true,
             segmentLeg: i + 1,
             airCode: element.originCode.text,
             originCode: element.originCode.text,
@@ -223,10 +229,10 @@ class _PDFTabV2State extends State<PDFTabV2> {
 
         if (i == 0) {
           final List<ex.CellValue> test = [];
-          for (var element in invoice.row) {
+          for (var element in invoice.row2) {
             test.add(ex.TextCellValue(element.toString()));
           }
-          print('weeeeeeeee');
+
           invoiceExcel?.appendRow(table, test);
         }
       }
@@ -247,6 +253,9 @@ class _PDFTabV2State extends State<PDFTabV2> {
           salutation: _approverTextController.text,
           passengerName: _passengerNameTextController.text,
           bookingType: "AIR",
+          travelType: _travelTypeController.text,
+          tripReason: _tripReasonController.text,
+          co2e: _co2eController.text,
           documentNumber: _ticketNumberController.text,
           recordLocatorPNR: _bookNumberTextController.text,
           vendorCode: element.routeName.text,
@@ -292,6 +301,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
           salutation: _approverTextController.text,
           passengerName: _passengerNameTextController.text,
           bookingType: "HTL",
+          travelType: _travelTypeController.text,
+          tripReason: _tripReasonController.text,
           documentNumber: _bookNumberTextController.text,
           recordLocatorPNR: _bookNumberTextController.text,
           vendorCode: hotelInvoice!.hotelName.text,
@@ -310,6 +321,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
           segmentLeg: 1,
           airCode: '',
           originCode: '',
+          co2e: _co2eController.text,
           flightNumber: '');
       final List<ex.CellValue> test = [];
       for (var element in invoice.row) {
@@ -333,7 +345,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
                 print(e);
               }
             },
-            child: const Icon(Icons.padding),
+            child: const Icon(Icons.save_outlined),
           ),
           const SizedBox(
             height: 10,
@@ -357,138 +369,64 @@ class _PDFTabV2State extends State<PDFTabV2> {
               showDialog(
                   context: context,
                   builder: (context) {
-                    return Dialog(
-                      child: SizedBox(
-                        width: 400,
-                        height: 100,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: InkWell(
-                                onTap: () {
-                                  FilePicker.platform
-                                      .pickFiles(
-                                    allowMultiple: false,
-                                  )
-                                      .then((result) {
-                                    if (result != null) {
-                                      if (kIsWeb) {
-                                        final ex.Excel invoice =
-                                            ex.Excel.decodeBytes(
-                                                Uint8List.fromList(
-                                                    result.files[0].bytes!));
-                                        setState(() {
-                                          invoiceExcel = invoice;
-                                        });
-                                        if (context.mounted) {
-                                          Navigator.pop(context);
-                                        }
-                                      } else {
-                                        File(result.files[0].path!)
-                                            .readAsBytes()
-                                            .then((value) {
-                                          final ex.Excel invoice =
-                                              ex.Excel.decodeBytes(value);
-                                          setState(() {
-                                            invoiceExcel = invoice;
-                                          });
-                                          if (context.mounted) {
-                                            Navigator.pop(context);
-                                          }
-                                        });
-                                      }
-                                    }
-                                  });
-                                },
-                                child: DecoratedBox(
-                                  decoration: const BoxDecoration(
-                                      color: Colors.blue,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(4))),
-                                  child: SizedBox(
-                                    width: 120,
-                                    height: 30,
-                                    child: Center(
-                                      child: Text(
-                                        invoiceExcel == null
-                                            ? "Choose invoice"
-                                            : 'Invoice picked',
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
+                    return StatefulBuilder(
+                      builder: (dialogContext, dialogSetState) {
+                        return AlertDialog(
+                          title: const Text('Select Excel Templates'),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _excelPickerTile(
+                                context: dialogContext,
+                                title: 'Invoice Excel',
+                                description:
+                                    'Required before saving invoices/PDF.',
+                                isPicked: invoiceExcel != null,
+                                fileName: _invoiceExcelName,
+                                onPick: () => _pickExcel(
+                                  isInvoice: true,
+                                  dialogSetState: dialogSetState,
                                 ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: InkWell(
-                                onTap: () {
-                                  FilePicker.platform
-                                      .pickFiles(
-                                    allowMultiple: false,
-                                  )
-                                      .then((result) {
-                                    if (result != null) {
-                                      if (kIsWeb) {
-                                        final ex.Excel invoice =
-                                            ex.Excel.decodeBytes(result
-                                                .files[0].bytes!
-                                                .toList());
-                                        setState(() {
-                                          segmentationExcel = invoice;
-                                        });
-                                        if (context.mounted) {
-                                          Navigator.pop(context);
-                                        }
-                                      } else {
-                                        try {
-                                          File(result.files[0].path!)
-                                              .readAsBytes()
-                                              .then((value) {
-                                            final ex.Excel invoice =
-                                                ex.Excel.decodeBytes(value);
-                                            setState(() {
-                                              segmentationExcel = invoice;
-                                            });
-                                            if (context.mounted) {
-                                              Navigator.pop(context);
-                                            }
-                                          });
-                                        } catch (e) {
-                                          print(e);
-                                        }
-                                      }
-                                    }
+                                onClear: () {
+                                  setState(() {
+                                    invoiceExcel = null;
+                                    _invoiceExcelName = null;
                                   });
+                                  dialogSetState(() {});
                                 },
-                                child: DecoratedBox(
-                                  decoration: const BoxDecoration(
-                                      color: Colors.blue,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(4))),
-                                  child: SizedBox(
-                                    width: 160,
-                                    height: 30,
-                                    child: Center(
-                                      child: Text(
-                                        segmentationExcel == null
-                                            ? "Choose Segmentation"
-                                            : 'Segmentation picked',
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ),
                               ),
+                              const SizedBox(height: 12),
+                              _excelPickerTile(
+                                context: dialogContext,
+                                title: 'Segmentation Excel',
+                                description:
+                                    'Used to append individual segment rows.',
+                                isPicked: segmentationExcel != null,
+                                fileName: _segmentationExcelName,
+                                onPick: () => _pickExcel(
+                                  isInvoice: false,
+                                  dialogSetState: dialogSetState,
+                                ),
+                                onClear: () {
+                                  setState(() {
+                                    segmentationExcel = null;
+                                    _segmentationExcelName = null;
+                                  });
+                                  dialogSetState(() {});
+                                },
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(),
+                              child: const Text('Close'),
                             ),
                           ],
-                        ),
-                      ),
+                        );
+                      },
                     );
                   });
               // final excel = ex.Excel.createExcel();
@@ -776,6 +714,26 @@ class _PDFTabV2State extends State<PDFTabV2> {
                     ),
                     TextButton(
                         onPressed: () {
+                          _invoiceTextController.text = 'TI99';
+                          _dateTextController.text = '10/01/2000';
+                          _dateOfSupplyTextController.text = '10/01/2001';
+                          _costCenterTextController.text = '11223';
+                          _employeeIdTextController.text = '2323';
+                          _businessUnitTextController.text = 'TEXT2322';
+                          _bookedByTextController.text = 'AKAR';
+                          _bookNumberTextController.text = '343';
+                          _netPriceTextController.text = '10';
+                          _approverTextController.text = 'OMER';
+                          _passengerNameTextController.text =
+                              'SAMAN / SHWAN MR';
+                          _ticketNumberController.text = '997722233';
+                          _airlineCarrierTaxController.text = '5';
+                          _serviceFeeController.text = '11';
+                          _co2eController.text = '20';
+                          _travelTypeController.text = 'ROTATION';
+
+                          _tripReasonController.text = 'Xoshy';
+                          _projectCodeController.text = 'Data';
                           setState(() {
                             invoices.add(
                               SegmentMock.nextMockSegment(
@@ -1082,6 +1040,131 @@ class _PDFTabV2State extends State<PDFTabV2> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _pickExcel({
+    required bool isInvoice,
+    required void Function(void Function()) dialogSetState,
+  }) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+      if (result == null) return;
+
+      ex.Excel workbook;
+      final file = result.files.single;
+      final String? displayName = file.name.isNotEmpty ? file.name : file.path;
+
+      if (kIsWeb) {
+        final bytes = file.bytes;
+        if (bytes == null) {
+          throw Exception('No bytes received from file picker');
+        }
+        workbook = ex.Excel.decodeBytes(Uint8List.fromList(bytes));
+      } else {
+        final path = file.path;
+        if (path == null) {
+          throw Exception('No path provided for selected file');
+        }
+        final data = await File(path).readAsBytes();
+        workbook = ex.Excel.decodeBytes(data);
+      }
+
+      setState(() {
+        if (isInvoice) {
+          invoiceExcel = workbook;
+          _invoiceExcelName = displayName;
+        } else {
+          segmentationExcel = workbook;
+          _segmentationExcelName = displayName;
+        }
+      });
+      dialogSetState(() {});
+
+      if (!mounted) return;
+      final label = isInvoice ? 'Invoice' : 'Segmentation';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              '$label Excel loaded${displayName != null ? ': $displayName' : ''}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load Excel: $e')),
+      );
+    }
+  }
+
+  Widget _excelPickerTile({
+    required BuildContext context,
+    required String title,
+    required String description,
+    required bool isPicked,
+    required String? fileName,
+    required Future<void> Function() onPick,
+    required VoidCallback onClear,
+  }) {
+    final theme = Theme.of(context);
+    final Color iconColor = isPicked ? Colors.green : theme.colorScheme.error;
+    final IconData iconData = isPicked ? Icons.check_circle : Icons.upload_file;
+    final String subtitle = isPicked
+        ? (fileName?.isNotEmpty == true ? fileName! : 'File selected')
+        : 'No file selected yet';
+
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(iconData, color: iconColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(subtitle, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => unawaited(onPick()),
+                  icon: const Icon(Icons.folder_open),
+                  label: Text(isPicked ? 'Change file' : 'Pick file'),
+                ),
+                if (isPicked) ...[
+                  const SizedBox(width: 8),
+                  TextButton.icon(
+                    onPressed: onClear,
+                    icon: const Icon(Icons.clear),
+                    label: const Text('Clear'),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
