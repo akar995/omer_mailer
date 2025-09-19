@@ -456,27 +456,12 @@ class _MyDrawerState extends State<MyDrawer> {
   // =================== Bulk PDF Helpers ===================
 
   int getHeaderRow(List<List<ex.Data?>> rows) {
-    for (int headerIndexAt = 12; headerIndexAt < 14; headerIndexAt++) {
+    for (int headerIndexAt = 0; headerIndexAt < 14; headerIndexAt++) {
       final headerRow = rows[headerIndexAt];
+
       if (headerRow[0]?.value?.toString().trim() == 'Product' &&
           headerRow[1]?.value?.toString().trim() == 'Airline/Hotel/Visa/Car' &&
-          headerRow[2]?.value?.toString().trim() == 'Ticket No / Voucher No' &&
-          headerRow[3]?.value?.toString().trim() == 'Ticket issued date' &&
-          headerRow[4]?.value?.toString().trim() == 'Airline PNR' &&
-          headerRow[5]?.value?.toString().trim() == 'Passenger Name' &&
-          headerRow[6]?.value?.toString().trim() == 'Invoiceno.' &&
-          headerRow[7]?.value?.toString().trim() == 'Invoiceamount' &&
-          headerRow[8]?.value?.toString().trim() == 'CLASS' &&
-          headerRow[9]?.value?.toString().trim() == 'Departure Date' &&
-          headerRow[10]?.value?.toString().trim() == 'RETURN DATE' &&
-          headerRow[11]?.value?.toString().trim() == 'Routing' &&
-          headerRow[12]?.value?.toString().trim() == 'Check-in' &&
-          headerRow[13]?.value?.toString().trim() == 'Check-out' &&
-          headerRow[14]?.value?.toString().trim() == 'Booked by' &&
-          headerRow[15]?.value?.toString().trim() == 'Project Code' &&
-          headerRow[16]?.value?.toString().trim() == 'Location Code' &&
-          headerRow[17]?.value?.toString().trim() == 'Reservation Type' &&
-          headerRow[18]?.value?.toString().trim() == 'Reason for travel') {
+          headerRow[2]?.value?.toString().trim() == 'Ticket No / Voucher No') {
         return headerIndexAt;
       }
     }
@@ -527,7 +512,6 @@ class _MyDrawerState extends State<MyDrawer> {
         _toast('No sheets found.');
         return;
       }
-
       // Take first sheet
       final sheetName = book.tables.keys.first;
       final sheet = book.tables[sheetName]!;
