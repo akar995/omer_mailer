@@ -48,7 +48,7 @@ class InvoiceStructure {
   final String lskFee;
   final String baseFare;
   final int taxAmount;
-
+  final bool shouldEnterTaxAmount;
   final int totalAmountLondonSky;
   static const exchangeIndicator = 'N';
   late final String bookingNumber;
@@ -94,6 +94,7 @@ class InvoiceStructure {
     required this.airCode,
     required this.originCode,
     required this.flightNumber,
+    this.shouldEnterTaxAmount = true,
   }) {
     bookingNumber = recordLocatorPNR;
     final lastName =
@@ -144,7 +145,9 @@ class InvoiceStructure {
     row.add(currency);
     row.add(lskFee);
     row.add(baseFare);
-    row.add(taxAmount);
+    if (shouldEnterTaxAmount) {
+      row.add(taxAmount);
+    }
     row.add(totalAmountLondonSky);
     row.add(exchangeIndicator);
     row.add(bookingType == "AIR" ? documentNumber : bookingNumber);

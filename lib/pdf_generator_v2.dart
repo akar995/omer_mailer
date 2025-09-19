@@ -20,16 +20,17 @@ Future<Uint8List> generateInvoicePdfV2({
   required String bookedNo,
   required String passengerName,
   required String approver,
-  required String firstPrice, // Ex VAT (fare)
-  required String commission, // Commission
+  required String netPrice, // Ex VAT (fare)
   required String airlineCarrierTaxes, // Airline taxes (editable)
   required String serviceFee, // Service fee (editable)
   required String total, // ignored; recomputed below
   required String ticketNumber,
   required String co2e,
   required String travelType,
+  required String outOfPolicy,
   required String tripReason,
   required String projectCode,
+  required String hotelRateTax,
   required bool changeInvoiceText,
   required bool useNewCompanyAddress,
   required bool useAltCustomerBlock,
@@ -45,11 +46,13 @@ Future<Uint8List> generateInvoicePdfV2({
 
   // numeric parsing & totals
   num n(String v) => num.tryParse(v.replaceAll(',', '').trim()) ?? 0;
-  final num fare = n(firstPrice);
-  final num comm = n(commission);
+  final num net = n(netPrice);
   final num taxes = n(airlineCarrierTaxes);
   final num svc = n(serviceFee);
-  final num grandTotal = fare + comm + taxes + svc;
+  final num grandTotal = net + taxes + svc;
+  final rate = n(hotelRateTax);
+  final percentageRate = rate > 0 ? (rate / 100) + 1 : 1;
+  final totalVatAmount = grandTotal * percentageRate;
 
   // adaptive compactness (keeps structure, just tightens)
   final segCount = invoices.length;
@@ -175,14 +178,15 @@ Future<Uint8List> generateInvoicePdfV2({
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      _kv("Invoice No", invoiceNo, t),
+                      _kv(changeInvoiceText ? "Credit No" : "Invoice No",
+                          invoiceNo, t),
                       _kv("Date", date, t),
                       _kv("Date of Supply", dateOfSupply, t),
                       _kv("Cost Center", costCenter, t),
                       _kv("Employee ID", employeeId, t),
                       _kv("Business Unit", businessUnit, t, valueSize: 9),
                       _kv("Booked By", bookedBy, t),
-                      _kv("Booking No.", bookedNo, t),
+                      _kv("Booking No", bookedNo, t),
                       _kv("Approver Line Manager Name", approver, t),
                     ],
                   ),
@@ -246,11 +250,10 @@ Future<Uint8List> generateInvoicePdfV2({
             pw.SizedBox(height: gap(4)),
             if (invoices.isEmpty && hotelData != null)
               _hotelBlockCompact(
-                  hotelData, passengerName, fare.toStringAsFixed(2), t, gap)
+                  hotelData, passengerName, net.toStringAsFixed(2), t, gap)
             else
               ...List.generate(invoices.length,
                   (i) => _segmentTwoLineRow(invoices, i, t, gap)),
-            pw.Spacer(),
 
             // Ticket & Airline taxes (air only)
             if (hotelData == null) ...[
@@ -271,9 +274,9 @@ Future<Uint8List> generateInvoicePdfV2({
                     child: pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
-                        pw.Text(fare.toStringAsFixed(2), style: t(size: 11)),
+                        pw.Text(net.toStringAsFixed(2), style: t(size: 11)),
                         pw.Text('0.00', style: t(size: 11)),
-                        pw.Text(fare.toStringAsFixed(2), style: t(size: 11)),
+                        pw.Text(net.toStringAsFixed(2), style: t(size: 11)),
                       ],
                     ),
                   ),
@@ -306,44 +309,9 @@ Future<Uint8List> generateInvoicePdfV2({
               ),
             ],
 
-            // Commission bar
             pw.SizedBox(height: gap(8)),
-            pw.Container(
-              color: PdfColor.fromHex('081e5b'),
-              padding:
-                  pw.EdgeInsets.symmetric(vertical: gap(4), horizontal: gap(8)),
-              child: pw.Row(
-                children: [
-                  pw.Expanded(
-                    flex: 50,
-                    child: pw.Text("Commission",
-                        style: t(
-                            size: 11,
-                            bold: true,
-                            color: PdfColor.fromHex('ceb553'))),
-                  ),
-                  pw.Expanded(
-                    flex: 25,
-                    child: pw.Text(comm.toStringAsFixed(2),
-                        style: t(
-                            size: 11,
-                            bold: true,
-                            color: PdfColor.fromHex('ceb553'))),
-                  ),
-                  pw.Expanded(
-                    flex: 25,
-                    child: pw.Text(comm.toStringAsFixed(2),
-                        textAlign: pw.TextAlign.right,
-                        style: t(
-                            size: 11,
-                            bold: true,
-                            color: PdfColor.fromHex('ceb553'))),
-                  ),
-                ],
-              ),
-            ),
 
-            // Service Fee bar
+            // Service Container
             pw.SizedBox(height: gap(4)),
             pw.Container(
               color: PdfColor.fromHex('081e5b'),
@@ -352,29 +320,74 @@ Future<Uint8List> generateInvoicePdfV2({
               child: pw.Row(
                 children: [
                   pw.Expanded(
-                    flex: 50,
-                    child: pw.Text("Service Fee",
+                    flex: 150,
+                    child: pw.Text("Other charges",
                         style: t(
                             size: 11,
                             bold: true,
                             color: PdfColor.fromHex('ceb553'))),
                   ),
                   pw.Expanded(
-                    flex: 25,
-                    child: pw.Text(svc.toStringAsFixed(2),
+                    flex: 34,
+                    child: pw.Text("Ex VAT",
                         style: t(
                             size: 11,
                             bold: true,
                             color: PdfColor.fromHex('ceb553'))),
+                  ),
+                  pw.Expanded(
+                    flex: 50,
+                    child: pw.Align(
+                        alignment: pw.Alignment.centerRight,
+                        child: pw.Text("VAT",
+                            style: t(
+                                size: 11,
+                                bold: true,
+                                color: PdfColor.fromHex('ceb553')))),
+                  ),
+                  pw.Expanded(
+                    flex: 63,
+                    child: pw.Align(
+                        alignment: pw.Alignment.centerRight,
+                        child: pw.Text("Total",
+                            style: t(
+                                size: 11,
+                                bold: true,
+                                color: PdfColor.fromHex('ceb553')))),
+                  ),
+                ],
+              ),
+            ), // Service Container
+            pw.SizedBox(height: gap(4)),
+            pw.Container(
+              padding:
+                  pw.EdgeInsets.symmetric(vertical: gap(4), horizontal: gap(8)),
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    flex: 50,
+                    child: pw.Text("Service Fee",
+                        style: t(
+                          size: 11,
+                          bold: true,
+                        )),
+                  ),
+                  pw.Expanded(
+                    flex: 25,
+                    child: pw.Text(svc.toStringAsFixed(2),
+                        style: t(
+                          size: 11,
+                          bold: true,
+                        )),
                   ),
                   pw.Expanded(
                     flex: 25,
                     child: pw.Text(svc.toStringAsFixed(2),
                         textAlign: pw.TextAlign.right,
                         style: t(
-                            size: 11,
-                            bold: true,
-                            color: PdfColor.fromHex('ceb553'))),
+                          size: 11,
+                          bold: true,
+                        )),
                   ),
                 ],
               ),
@@ -456,6 +469,20 @@ Future<Uint8List> generateInvoicePdfV2({
                 ),
               ],
             ),
+            if (hotelData != null) pw.SizedBox(height: gap(2)),
+            if (hotelData != null)
+              pw.Row(
+                children: [
+                  pw.Expanded(
+                    flex: 32,
+                    child: pw.Text("Out of Policy", style: t(size: 10)),
+                  ),
+                  pw.Expanded(
+                    flex: 68,
+                    child: pw.Text(outOfPolicy, style: t(size: 10)),
+                  ),
+                ],
+              ),
             pw.Row(
               children: [
                 pw.Expanded(
@@ -485,6 +512,72 @@ Future<Uint8List> generateInvoicePdfV2({
             pw.Divider(height: 0.5),
             pw.SizedBox(height: gap(2)),
             pw.Text("Comments", style: t(size: 10)),
+            if (hotelData != null) pw.SizedBox(height: gap(8)),
+            if (hotelData != null)
+              pw.Container(
+                color: PdfColor.fromHex('081e5b'),
+                padding: pw.EdgeInsets.symmetric(
+                    vertical: gap(3), horizontal: gap(8)),
+                child: pw.Row(
+                  children: [
+                    pw.Expanded(
+                      flex: 15,
+                      child: pw.Text("VAT Detail",
+                          style: t(
+                              size: 10,
+                              bold: true,
+                              color: PdfColor.fromHex('ceb553'))),
+                    ),
+                    pw.Expanded(
+                      flex: 10,
+                      child: pw.Text("Taxable Amt",
+                          style: t(
+                              size: 10,
+                              bold: true,
+                              color: PdfColor.fromHex('ceb553'))),
+                    ),
+                    pw.Expanded(
+                        flex: 20,
+                        child: pw.Text("Total VAT Amount",
+                            style: t(
+                                size: 10,
+                                bold: true,
+                                color: PdfColor.fromHex('ceb553')))),
+                  ],
+                ),
+              ),
+            if (hotelData != null) pw.SizedBox(height: gap(8)),
+            if (hotelData != null)
+              pw.Padding(
+                padding: pw.EdgeInsets.symmetric(
+                    vertical: gap(3), horizontal: gap(8)),
+                child: pw.Row(
+                  children: [
+                    pw.Expanded(
+                      flex: 17,
+                      child: pw.Text(
+                          hotelRateTax.isNotEmpty
+                              ? "Standard Rate"
+                              : "Zero Rate",
+                          style: t(
+                            size: 10,
+                          )),
+                    ),
+                    pw.Expanded(
+                        flex: 12,
+                        child: pw.Text(totalVatAmount.toStringAsFixed(2),
+                            style: t(
+                              size: 10,
+                            ))),
+                    pw.Expanded(
+                        flex: 18,
+                        child: pw.Text((percentageRate - 1).toStringAsFixed(2),
+                            style: t(
+                              size: 10,
+                            ))),
+                  ],
+                ),
+              ),
             pw.Divider(height: 0.5),
 
             pw.SizedBox(height: gap(4)),
@@ -650,7 +743,8 @@ pw.Widget _hotelBlockCompact(
       );
 
   return pw.Row(
-    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    crossAxisAlignment: pw.CrossAxisAlignment.end,
+    mainAxisAlignment: pw.MainAxisAlignment.end,
     children: [
       pw.Expanded(
         flex: 54,

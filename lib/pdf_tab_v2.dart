@@ -41,10 +41,9 @@ class _PDFTabV2State extends State<PDFTabV2> {
       TextEditingController(text: "Kentech Gulf Holdings Limited Iraq Branch");
   final _bookedByTextController = TextEditingController(text: "NEMAT");
   final _bookNumberTextController = TextEditingController();
-  final _firstPriceTextController = TextEditingController(); // fare (ex VAT)
+  final _netPriceTextController = TextEditingController(); // fare (ex VAT)
   final _approverTextController = TextEditingController();
   final _passengerNameTextController = TextEditingController();
-  final _commissionTextController = TextEditingController(); // was "tax"
   final _ticketNumberController = TextEditingController();
 
   // NEW fields
@@ -52,6 +51,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
   final _serviceFeeController = TextEditingController();
   final _co2eController = TextEditingController();
   final _travelTypeController = TextEditingController();
+  final _outOfPolicyController = TextEditingController();
+  final _hotelTaxRateController = TextEditingController();
   final _tripReasonController = TextEditingController(text: 'Rotation');
   final _projectCodeController = TextEditingController(text: '1425-GCMC');
 
@@ -79,10 +80,9 @@ class _PDFTabV2State extends State<PDFTabV2> {
     _businessUnitTextController.dispose();
     _bookedByTextController.dispose();
     _bookNumberTextController.dispose();
-    _firstPriceTextController.dispose();
+    _netPriceTextController.dispose();
     _approverTextController.dispose();
     _passengerNameTextController.dispose();
-    _commissionTextController.dispose();
     _ticketNumberController.dispose();
     _airlineCarrierTaxController.dispose();
     _serviceFeeController.dispose();
@@ -90,8 +90,17 @@ class _PDFTabV2State extends State<PDFTabV2> {
     _travelTypeController.dispose();
     _tripReasonController.dispose();
     _projectCodeController.dispose();
+    _outOfPolicyController.dispose();
 
     super.dispose();
+  }
+
+  int getTotalAmount() {
+    int firstPrice = int.tryParse(_netPriceTextController.text) ?? 0;
+    int tax = int.tryParse(_airlineCarrierTaxController.text) ?? 0;
+    int serviceFee = int.tryParse(_serviceFeeController.text) ?? 0;
+
+    return firstPrice + tax + serviceFee;
   }
 
   filesCanNotSave() {
@@ -183,11 +192,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
       for (int i = 0; i < invoices.length; i++) {
         final element = invoices[i];
 
-        final int totalAmount =
-            (int.tryParse(_firstPriceTextController.text) ?? 0) +
-                (int.tryParse(_airlineCarrierTaxController.text) ?? 0);
-        final int taxAmount =
-            totalAmount - (int.tryParse(_firstPriceTextController.text) ?? 0);
+        final int totalAmount = getTotalAmount();
+
         final InvoiceStructure invoice = InvoiceStructure(
             recordKey: _invoiceTextController.text,
             invoiceDate: _dateTextController.text,
@@ -207,8 +213,9 @@ class _PDFTabV2State extends State<PDFTabV2> {
             destinationCode: invoices[finalDes].destinationCode.text,
             passengerID: _employeeIdTextController.text,
             lskFee: _airlineCarrierTaxController.text,
-            baseFare: _firstPriceTextController.text,
-            taxAmount: taxAmount,
+            baseFare: _netPriceTextController.text,
+            taxAmount: 0,
+            shouldEnterTaxAmount: false,
             segmentLeg: i + 1,
             airCode: element.originCode.text,
             originCode: element.originCode.text,
@@ -219,6 +226,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
           for (var element in invoice.row) {
             test.add(ex.TextCellValue(element.toString()));
           }
+          print('weeeeeeeee');
           invoiceExcel?.appendRow(table, test);
         }
       }
@@ -230,11 +238,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
       for (int i = 0; i < invoices.length; i++) {
         final element = invoices[i];
 
-        final int totalAmount =
-            (int.tryParse(_firstPriceTextController.text) ?? 0) +
-                (int.tryParse(_airlineCarrierTaxController.text) ?? 0);
-        final int taxAmount =
-            totalAmount - (int.tryParse(_firstPriceTextController.text) ?? 0);
+        final int totalAmount = getTotalAmount();
+
         final InvoiceStructure invoice = InvoiceStructure(
           recordKey: _invoiceTextController.text,
           invoiceDate: _dateTextController.text,
@@ -254,8 +259,9 @@ class _PDFTabV2State extends State<PDFTabV2> {
           destinationCode: element.destinationCode.text,
           passengerID: _employeeIdTextController.text,
           lskFee: _airlineCarrierTaxController.text,
-          baseFare: _firstPriceTextController.text,
-          taxAmount: taxAmount,
+          baseFare: _netPriceTextController.text,
+          taxAmount: 0,
+          shouldEnterTaxAmount: true,
           segmentLeg: i + 1,
           airCode: element.originCode.text,
           originCode: element.originCode.text,
@@ -265,6 +271,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
         for (var element in invoice.segment) {
           test.add(ex.TextCellValue(element.toString()));
         }
+
         segmentationExcel?.appendRow(table, test);
       }
     }
@@ -275,10 +282,8 @@ class _PDFTabV2State extends State<PDFTabV2> {
       // for (int i = 0; i < invoices.length; i++) {
 
       final int totalAmount =
-          (int.tryParse(_firstPriceTextController.text) ?? 0) +
+          (int.tryParse(_netPriceTextController.text) ?? 0) +
               (int.tryParse(_airlineCarrierTaxController.text) ?? 0);
-      final int taxAmount =
-          totalAmount - (int.tryParse(_firstPriceTextController.text) ?? 0);
 
       final InvoiceStructure invoice = InvoiceStructure(
           recordKey: _invoiceTextController.text,
@@ -299,8 +304,9 @@ class _PDFTabV2State extends State<PDFTabV2> {
           destinationCode: hotelInvoice!.hotelDestination.text,
           passengerID: _employeeIdTextController.text,
           lskFee: _airlineCarrierTaxController.text,
-          baseFare: _firstPriceTextController.text,
-          taxAmount: taxAmount,
+          baseFare: _netPriceTextController.text,
+          taxAmount: 0,
+          shouldEnterTaxAmount: false,
           segmentLeg: 1,
           airCode: '',
           originCode: '',
@@ -321,9 +327,13 @@ class _PDFTabV2State extends State<PDFTabV2> {
         children: [
           FloatingActionButton(
             onPressed: () async {
-              saveFiles(saveInvoice: true, saveSegment: true);
+              try {
+                saveFiles(saveInvoice: true, saveSegment: true);
+              } catch (e) {
+                print(e);
+              }
             },
-            child: const Icon(Icons.save_alt_outlined),
+            child: const Icon(Icons.padding),
           ),
           const SizedBox(
             height: 10,
@@ -602,31 +612,20 @@ class _PDFTabV2State extends State<PDFTabV2> {
                       ),
                     ),
 
-                    // Fare / Commission / Airline Taxes / Service Fee / Ticket No
+                    // Fare /  Airline Taxes / Service Fee / Ticket No
                     SizedBox(
                       width: 180,
                       child: TextField(
-                        controller: _firstPriceTextController,
+                        controller: _netPriceTextController,
                         onChanged: _onTextChange,
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'[-0-9.,]'))
                         ],
-                        decoration: _dec('Fare (Ex VAT)'),
+                        decoration: _dec('Net Price'),
                       ),
                     ),
-                    SizedBox(
-                      width: 160,
-                      child: TextField(
-                        controller: _commissionTextController,
-                        onChanged: _onTextChange,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[-0-9.,]'))
-                        ],
-                        decoration: _dec('Commission'),
-                      ),
-                    ),
+
                     SizedBox(
                       width: 190,
                       child: TextField(
@@ -669,16 +668,29 @@ class _PDFTabV2State extends State<PDFTabV2> {
                         decoration: _dec('Travel Type'),
                       ),
                     ),
+
                     SizedBox(
-                      width: 200,
+                      width: 180,
                       child: TextField(
                         controller: _co2eController,
                         onChanged: _onTextChange,
                         decoration: _dec('CO2e'),
                       ),
                     ),
+
                     SizedBox(
-                      width: 200,
+                      width: 100,
+                      child: TextField(
+                        controller: _hotelTaxRateController,
+                        onChanged: _onTextChange,
+                        decoration: _dec('Rate'),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[-0-9.,]'))
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 180,
                       child: TextField(
                         controller: _tripReasonController,
                         onChanged: _onTextChange,
@@ -691,6 +703,14 @@ class _PDFTabV2State extends State<PDFTabV2> {
                         controller: _projectCodeController,
                         onChanged: _onTextChange,
                         decoration: _dec('Project Code'),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 200,
+                      child: TextField(
+                        controller: _outOfPolicyController,
+                        onChanged: _onTextChange,
+                        decoration: _dec('Out of policy'),
                       ),
                     ),
 
@@ -830,6 +850,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
 
                                   await insertInvoiceRow();
                                   await insertSegmentationRow();
+                                  print('data is inserted');
 
                                   saveFiles(
                                           saveInvoice: false,
@@ -858,6 +879,7 @@ class _PDFTabV2State extends State<PDFTabV2> {
                                     isLoading = false;
                                   });
                                 } catch (e) {
+                                  print(e);
                                   setState(() {
                                     isLoading = false;
                                   });
@@ -1004,57 +1026,57 @@ class _PDFTabV2State extends State<PDFTabV2> {
               ),
               build: (pageFormat) {
                 pdf = generateInvoicePdfV2(
-                    hotelData: hotelInvoice,
-                    format: pageFormat,
-                    invoices: invoices,
-                    invoiceNo: _invoiceTextController.text.isNotEmpty
-                        ? _invoiceTextController.text
-                        : '.',
-                    date: _dateTextController.text.isNotEmpty
-                        ? _dateTextController.text
-                        : '.',
-                    dateOfSupply: _dateOfSupplyTextController.text.isNotEmpty
-                        ? _dateOfSupplyTextController.text
-                        : '.',
-                    costCenter: _costCenterTextController.text.isNotEmpty
-                        ? _costCenterTextController.text
-                        : '.',
-                    employeeId: _employeeIdTextController.text.isNotEmpty
-                        ? _employeeIdTextController.text
-                        : '.',
-                    businessUnit: _businessUnitTextController.text.isNotEmpty
-                        ? _businessUnitTextController.text
-                        : '.',
-                    bookedBy: _bookedByTextController.text.isNotEmpty
-                        ? _bookedByTextController.text
-                        : '.',
-                    bookedNo: _bookNumberTextController.text.isNotEmpty
-                        ? _bookNumberTextController.text
-                        : '.',
-                    firstPrice: _firstPriceTextController.text.isNotEmpty
-                        ? _firstPriceTextController.text
-                        : '0',
-                    commission: _commissionTextController.text.isNotEmpty
-                        ? _commissionTextController.text
-                        : '0',
-                    airlineCarrierTaxes:
-                        _airlineCarrierTaxController.text.isNotEmpty
-                            ? _airlineCarrierTaxController.text
-                            : '0',
-                    serviceFee: _serviceFeeController.text.isNotEmpty
-                        ? _serviceFeeController.text
-                        : '0',
-                    passengerName: _passengerNameTextController.text,
-                    approver: _approverTextController.text,
-                    total: '0', // recalculated inside generator
-                    ticketNumber: _ticketNumberController.text,
-                    co2e: _co2eController.text,
-                    travelType: _travelTypeController.text,
-                    changeInvoiceText: changeInvoiceText,
-                    useNewCompanyAddress: useNewCompanyAddress,
-                    useAltCustomerBlock: useAltCustomerBlock,
-                    projectCode: _projectCodeController.text,
-                    tripReason: _tripReasonController.text);
+                  hotelData: hotelInvoice,
+                  format: pageFormat,
+                  invoices: invoices,
+                  invoiceNo: _invoiceTextController.text.isNotEmpty
+                      ? _invoiceTextController.text
+                      : '.',
+                  date: _dateTextController.text.isNotEmpty
+                      ? _dateTextController.text
+                      : '.',
+                  dateOfSupply: _dateOfSupplyTextController.text.isNotEmpty
+                      ? _dateOfSupplyTextController.text
+                      : '.',
+                  costCenter: _costCenterTextController.text.isNotEmpty
+                      ? _costCenterTextController.text
+                      : '.',
+                  employeeId: _employeeIdTextController.text.isNotEmpty
+                      ? _employeeIdTextController.text
+                      : '.',
+                  businessUnit: _businessUnitTextController.text.isNotEmpty
+                      ? _businessUnitTextController.text
+                      : '.',
+                  bookedBy: _bookedByTextController.text.isNotEmpty
+                      ? _bookedByTextController.text
+                      : '.',
+                  bookedNo: _bookNumberTextController.text.isNotEmpty
+                      ? _bookNumberTextController.text
+                      : '.',
+                  netPrice: _netPriceTextController.text.isNotEmpty
+                      ? _netPriceTextController.text
+                      : '0',
+                  airlineCarrierTaxes:
+                      _airlineCarrierTaxController.text.isNotEmpty
+                          ? _airlineCarrierTaxController.text
+                          : '0',
+                  serviceFee: _serviceFeeController.text.isNotEmpty
+                      ? _serviceFeeController.text
+                      : '0',
+                  passengerName: _passengerNameTextController.text,
+                  approver: _approverTextController.text,
+                  total: '0', // recalculated inside generator
+                  ticketNumber: _ticketNumberController.text,
+                  co2e: _co2eController.text,
+                  travelType: _travelTypeController.text,
+                  changeInvoiceText: changeInvoiceText,
+                  useNewCompanyAddress: useNewCompanyAddress,
+                  useAltCustomerBlock: useAltCustomerBlock,
+                  projectCode: _projectCodeController.text,
+                  outOfPolicy: _outOfPolicyController.text,
+                  tripReason: _tripReasonController.text,
+                  hotelRateTax: _hotelTaxRateController.text,
+                );
                 return pdf!;
               },
             ),
