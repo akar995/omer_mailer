@@ -1352,78 +1352,54 @@ class _PDFTabState extends State<PDFTab> {
                       ),
                     ),
                     build: (format) {
-                      // pdf = generateInvoicePdf(
-                      // hotelData: hotelInvoice,
-                      // format: format,
-                      // invoices: invoices,
-                      // invoiceNo: _invoiceTextController.text != ''
-                      // ? _invoiceTextController.text
-                      // : '.',
-                      // date: _dateTextController.text != ''
-                      // ? _dateTextController.text
-                      // : '.',
-                      // dateOfSupply: _dateOfSupplyTextController.text != ''
-                      // ? _dateOfSupplyTextController.text
-                      // : '.',
-                      // costCenter: _costCenterTextController.text != ''
-                      // ? _costCenterTextController.text
-                      // : '.',
-                      // employeeId: _employeeIdTextController.text != ''
-                      // ? _employeeIdTextController.text
-                      // : '.',
-                      // businessUnit: _businessUnitTextController.text != ''
-                      // ? _businessUnitTextController.text
-                      // : '.',
-                      // bookedBy: _bookedByTextController.text != ''
-                      // ? _bookedByTextController.text
-                      // : '.',
-                      // bookedNo: _bookNumberTextController.text != ''
-                      // ? _bookNumberTextController.text
-                      // : '.',
-                      // firstPrice: _firstPriceTextController.text != ''
-                      // ? _firstPriceTextController.text
-                      // : '00.00',
-                      // passengerName: _passengerNameTextController.text != ''
-                      // ? _passengerNameTextController.text
-                      // : '',
-                      // approver: _approverTextController.text != ''
-                      // ? _approverTextController.text
-                      // : '',
-                      // tax: _taxTextController.text != ''
-                      // ? '${_taxTextController.text}.00'
-                      // : '00.00',
-                      // total: ((int.tryParse(_taxTextController.text) ?? 0) +
-                      // (int.tryParse(
-                      // _firstPriceTextController.text) ??
-                      // 0))
-                      // .toString(),
-                      // ticketNumber: _ticketNumberController.text,
-                      // changeInvoiceText: changeInvoiceText);
-                      pdf = generateControlRiskInvoicePdf(
-                          invoiceDate: '10/10/200',
-                          invoiceNo: 't2323',
-                          product: '3232',
-                          supplierName: 'omer',
-                          ticketOrVoucherNo: '343',
-                          ticketIssuedDate: '343',
-                          airlinePNR: '343',
-                          passengerName: '3434',
-                          internalInvoiceNo: '3434',
-                          className: '3434',
-                          departureDate: '34',
-                          returnDate: '3434',
-                          routing: '4334',
-                          checkIn: '343',
-                          checkOut: '434',
-                          bookedBy: '343',
-                          projectCode: '3434',
-                          locationCode: '344',
-                          reservationType: '3434',
-                          reasonForTravel: '344',
-                          amountNumeric: 100,
-                          billTo: 'akar',
-                          viqNumbers: '233',
-                          invoiceMonthLabel: '');
+                      pdf = generateInvoicePdf(
+                          hotelData: hotelInvoice,
+                          format: format,
+                          invoices: invoices,
+                          invoiceNo: _invoiceTextController.text != ''
+                              ? _invoiceTextController.text
+                              : '.',
+                          date: _dateTextController.text != ''
+                              ? _dateTextController.text
+                              : '.',
+                          dateOfSupply: _dateOfSupplyTextController.text != ''
+                              ? _dateOfSupplyTextController.text
+                              : '.',
+                          costCenter: _costCenterTextController.text != ''
+                              ? _costCenterTextController.text
+                              : '.',
+                          employeeId: _employeeIdTextController.text != ''
+                              ? _employeeIdTextController.text
+                              : '.',
+                          businessUnit: _businessUnitTextController.text != ''
+                              ? _businessUnitTextController.text
+                              : '.',
+                          bookedBy: _bookedByTextController.text != ''
+                              ? _bookedByTextController.text
+                              : '.',
+                          bookedNo: _bookNumberTextController.text != ''
+                              ? _bookNumberTextController.text
+                              : '.',
+                          firstPrice: _firstPriceTextController.text != ''
+                              ? _firstPriceTextController.text
+                              : '00.00',
+                          passengerName: _passengerNameTextController.text != ''
+                              ? _passengerNameTextController.text
+                              : '',
+                          approver: _approverTextController.text != ''
+                              ? _approverTextController.text
+                              : '',
+                          tax: _taxTextController.text != ''
+                              ? '${_taxTextController.text}.00'
+                              : '00.00',
+                          total: ((int.tryParse(_taxTextController.text) ?? 0) +
+                                  (int.tryParse(
+                                          _firstPriceTextController.text) ??
+                                      0))
+                              .toString(),
+                          ticketNumber: _ticketNumberController.text,
+                          changeInvoiceText: changeInvoiceText);
+
                       return pdf!;
                     }),
               ),
